@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulatore prova scritta · Concorso RIPAM MiC · Codice 01</title>
+<style>
+:root{
+  --bg:#f5f2ec; --paper:#fffdf9; --ink:#1c2630; --muted:#5d6873; --line:#e2dcd1;
+  --accent:#9c3d22; --accent-soft:#f6e6df; --navy:#23394d;
+  --ok:#2e7d4f; --ok-soft:#e3f2e8; --ko:#b3261e; --ko-soft:#fbe7e5;
+  --warn:#9a6a00; --warn-soft:#fbf1d6; --blank:#8a939b;
+  --radius:12px; --shadow:0 1px 2px rgba(28,38,48,.06),0 6px 20px rgba(28,38,48,.06);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#14191e; --paper:#1c232a; --ink:#e8e4dc; --muted:#a3acb4; --line:#2e3740;
+  --accent:#e08a66; --accent-soft:#3a261e; --navy:#9fc0dc;
+  --ok:#6cc58f; --ok-soft:#1d3326; --ko:#f08a80; --ko-soft:#3d2120; --warn:#e2b44b; --warn-soft:#3a3020; --blank:#7d868e;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+}}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:880px;margin:0 auto;padding:24px 18px 64px}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:24px}
+.brand small{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.brand h1{font-family:var(--serif);font-weight:600;font-size:28px;line-height:1.15;margin:4px 0 0}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+.card+.card{margin-top:16px}
+h2{font-family:var(--serif);font-weight:600;font-size:21px;margin:0 0 12px}
+h3{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:680px){.grid2{grid-template-columns:1fr}.brand h1{font-size:23px}}
+.mode{border:2px solid var(--line);border-radius:var(--radius);padding:16px;background:var(--paper);text-align:left;transition:border-color .15s,background .15s;width:100%}
+.mode:hover{border-color:var(--navy)}
+.mode.sel{border-color:var(--accent);background:var(--accent-soft)}
+.mode strong{display:block;font-family:var(--serif);font-size:18px;margin-bottom:4px}
+.mode span{color:var(--muted);font-size:14px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:4px}
+@media (max-width:680px){.facts{grid-template-columns:repeat(2,1fr)}}
+.fact{border-left:3px solid var(--accent);padding:2px 0 2px 10px}
+.fact b{display:block;font-family:var(--serif);font-size:22px;line-height:1.1}
+.fact span{font-size:13px;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 14px;font-size:14px}
+.chip.sel{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+.field{margin-top:18px}
+.field label.lbl{display:block;font-weight:600;font-size:14px;margin-bottom:8px}
+input[type=number]{width:96px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit}
+.check{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--paper)}
+.check input{margin-top:4px;accent-color:var(--accent);width:16px;height:16px}
+.check small{display:block;color:var(--muted);font-size:13px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:680px){.checks{grid-template-columns:1fr}}
+.toggle{display:flex;align-items:center;gap:10px;font-size:15px}
+.toggle input{accent-color:var(--accent);width:17px;height:17px}
+.btn{border:none;border-radius:10px;padding:11px 20px;font-weight:600;font-size:15px;background:var(--line);color:var(--ink)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.navy{background:var(--navy);color:var(--paper)}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.big{padding:14px 26px;font-size:16px}
+.note{font-size:13px;color:var(--muted)}
+.hint{background:var(--warn-soft);border-radius:10px;padding:10px 14px;font-size:14px;margin-top:14px}
+.hidden{display:none!important}
+
+/* test */
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 12px;margin-bottom:6px}
+.bar-in{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.prog{flex:1;height:6px;background:var(--line);border-radius:4px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:18px;min-width:76px;text-align:right}
+.timer.low{color:var(--ko)}
+.qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.tag{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.tag.n{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.qnum{font-family:var(--serif);font-size:15px;color:var(--muted)}
+.qtext{font-family:var(--serif);font-size:21px;line-height:1.4;margin:4px 0 18px}
+@media (max-width:680px){.qtext{font-size:18px}}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);transition:border-color .12s,background .12s}
+.opt:hover:not(:disabled){border-color:var(--navy)}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;border:1.5px solid var(--line);background:var(--bg)}
+.opt.sel{border-color:var(--navy);background:color-mix(in srgb,var(--navy) 9%,var(--paper))}
+.opt.sel .k{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.ok .k{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.ko{border-color:var(--ko);background:var(--ko-soft)}
+.opt.ko .k{background:var(--ko);border-color:var(--ko);color:#fff}
+.opt.mid{border-color:var(--warn);background:var(--warn-soft)}
+.opt.mid .k{background:var(--warn);border-color:var(--warn);color:#fff}
+.opt:disabled{cursor:default}
+.opt .lab{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;display:block;margin-top:3px}
+.expl{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--bg);border-left:4px solid var(--navy);font-size:15px}
+.expl b{display:block;margin-bottom:4px}
+.nav{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-top:18px}
+.nav .row{gap:8px}
+.flag.on{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px;margin-top:14px}
+.navgrid button{height:36px;border-radius:8px;border:1px solid var(--line);background:var(--paper);font-size:13px;font-weight:600}
+.navgrid button.ans{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+.navgrid button.cur{outline:2px solid var(--accent);outline-offset:1px}
+.navgrid button.fl{box-shadow:inset 0 -3px 0 var(--warn)}
+.navgrid button.g-ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.navgrid button.g-ko{background:var(--ko);border-color:var(--ko);color:#fff}
+.navgrid button.g-mid{background:var(--warn);border-color:var(--warn);color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px;border:1px solid var(--line)}
+
+/* results */
+.score{display:flex;flex-wrap:wrap;align-items:center;gap:22px}
+.score .big{font-family:var(--serif);font-size:56px;line-height:1;font-weight:600}
+.score .big small{font-size:24px;color:var(--muted)}
+.verdict{display:inline-block;padding:6px 12px;border-radius:8px;font-weight:700;font-size:14px}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.verdict.ko{background:var(--ko-soft);color:var(--ko)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+@media (max-width:680px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat b{font-size:22px;font-family:var(--serif)}
+.stat span{display:block;font-size:13px;color:var(--muted)}
+table.cat{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+table.cat th,table.cat td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.cat th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.cat td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden;min-width:80px}
+.meter i{display:block;height:100%;background:var(--navy)}
+.rev{border-top:1px solid var(--line);padding:16px 0}
+.rev:first-child{border-top:none}
+.rev .q{font-family:var(--serif);font-size:17px;margin:6px 0 10px}
+.rev ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rev li{padding:8px 12px;border-radius:8px;border:1px solid var(--line);font-size:15px}
+.rev li.ok{background:var(--ok-soft);border-color:var(--ok)}
+.rev li.ko{background:var(--ko-soft);border-color:var(--ko)}
+.rev li.mid{background:var(--warn-soft);border-color:var(--warn)}
+.rev li em{font-style:normal;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-left:6px}
+.pill{font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.ko{background:var(--ko-soft);color:var(--ko)} .pill.mid{background:var(--warn-soft);color:var(--warn)} .pill.bl{background:var(--line);color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(10,15,20,.45);display:grid;place-items:center;z-index:20;padding:18px}
+.modal .card{max-width:440px;width:100%}
+footer{margin-top:28px;font-size:12.5px;color:var(--muted);line-height:1.55}
+kbd{font-family:var(--sans);font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--paper)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <small>Concorso RIPAM · Ministero della cultura</small>
+      <h1>Simulatore della prova scritta</h1>
+      <p>Assistente per la tutela, accoglienza e vigilanza per il patrimonio e i servizi culturali · Codice 01</p>
+    </div>
+  </header>
+
+  <!-- SETUP -->
+  <section id="setup">
+    <div class="card">
+      <h3>La prova secondo il bando (art. 6)</h3>
+      <div class="facts">
+        <div class="fact"><b>40</b><span>quesiti a risposta multipla</span></div>
+        <div class="fact"><b>60'</b><span>tempo a disposizione</span></div>
+        <div class="fact"><b>30</b><span>punteggio massimo</span></div>
+        <div class="fact"><b>21/30</b><span>soglia di superamento</span></div>
+      </div>
+      <p class="note" style="margin:14px 0 0">10 quesiti comuni, 15 specifici del Codice 01, 7 di logica e ragionamento critico-verbale, 8 situazionali. Risposta esatta +0,75, omessa 0, errata −0,25. Nei situazionali: più efficace +0,75, neutra +0,375, meno efficace 0.</p>
+    </div>
+
+    <div class="card">
+      <h2>Scegli la modalità</h2>
+      <div class="grid2">
+        <button class="mode sel" data-mode="official"><strong>Simulazione ufficiale</strong><span>40 quesiti con la stessa ripartizione del bando, 60 minuti, correzione alla consegna.</span></button>
+        <button class="mode" data-mode="custom"><strong>Allenamento</strong><span>Scegli numero di domande, materie, tempo e correzione immediata.</span></button>
+      </div>
+
+      <div id="customOpts" class="hidden">
+        <div class="field">
+          <label class="lbl">Numero di domande</label>
+          <div class="row" id="nChips"></div>
+          <div class="row" style="margin-top:10px"><span class="note">oppure</span><input type="number" id="nInput" min="1" value="20"><span class="note" id="nMax"></span></div>
+        </div>
+        <div class="field">
+          <label class="lbl">Materie</label>
+          <div class="checks" id="catChecks"></div>
+        </div>
+        <div class="field">
+          <label class="lbl">Tempo</label>
+          <div class="row" id="timeChips"></div>
+        </div>
+        <div class="field">
+          <label class="toggle"><input type="checkbox" id="instant"> Mostra la soluzione subito dopo ogni risposta</label>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content:space-between;margin-top:22px">
+        <span class="note" id="seenInfo"></span>
+        <button class="btn primary big" id="startBtn">Inizia il test</button>
+      </div>
+      <div class="hint">Le domande già uscite vengono proposte per ultime, così a ogni avvio ne vedi di nuove. L'ordine delle risposte cambia a ogni test.</div>
+      <div class="row" style="margin-top:14px;gap:10px">
+        <button class="btn ghost" id="reviewWrongBtn">Ripassa le domande sbagliate (<span id="wrongCount">0</span>)</button>
+        <button class="btn ghost" id="resetBtn">Azzera la cronologia</button>
+      </div>
+    </div>
+    <footer>
+      Banca dati di <span id="bankSize"></span> quesiti originali, redatti sulle materie dell'art. 6 del bando e sulla normativa del progetto (L. 241/1990, D.Lgs. 33/2013, L. 190/2012, D.Lgs. 165/2001, CAD, Codice dei beni culturali, codice penale) con aggiornamenti successivi: D.Lgs. 36/2023, D.Lgs. 81/2008, Regolamento (UE) 2016/679, D.P.C.M. 57/2024. La banca dati ufficiale non viene pubblicata prima della prova (art. 6, comma 4): questi quesiti sono un allenamento, non una previsione.
+    </footer>
+  </section>
+
+  <!-- TEST -->
+  <section id="test" class="hidden">
+    <div class="bar"><div class="bar-in">
+      <span class="qnum" id="qCounter"></span>
+      <div class="prog"><i id="progFill"></i></div>
+      <span class="timer" id="timer"></span>
+    </div></div>
+    <div class="card">
+      <div class="qmeta"><span class="tag" id="qSection"></span><span class="tag n" id="qMateria"></span></div>
+      <div class="qtext" id="qText"></div>
+      <div class="opts" id="qOpts"></div>
+      <div id="qExpl"></div>
+      <div class="nav">
+        <div class="row">
+          <button class="btn ghost" id="prevBtn">← Precedente</button>
+          <button class="btn ghost" id="clearBtn">Cancella risposta</button>
+          <button class="btn ghost flag" id="flagBtn">Da rivedere</button>
+        </div>
+        <div class="row">
+          <button class="btn navy" id="nextBtn">Successiva →</button>
+          <button class="btn primary" id="submitBtn">Consegna</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3 style="margin:0">Riepilogo risposte</h3>
+        <span class="note">Tasti: <kbd>A</kbd>–<kbd>D</kbd> o <kbd>1</kbd>–<kbd>4</kbd> per rispondere, <kbd>←</kbd> <kbd>→</kbd> per spostarti</span>
+      </div>
+      <div class="navgrid" id="navGrid"></div>
+      <div class="legend"><span><i style="background:var(--navy)"></i>risposta data</span><span><i style="box-shadow:inset 0 -3px 0 var(--warn)"></i>da rivedere</span><span><i></i>senza risposta</span></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="hidden">
+    <div class="card">
+      <h3 id="resMode"></h3>
+      <div class="score">
+        <div class="big" id="resScore"></div>
+        <div>
+          <div id="resVerdict"></div>
+          <p class="note" id="resDetail" style="margin:8px 0 0"></p>
+        </div>
+      </div>
+      <div class="stats" id="resStats"></div>
+    </div>
+    <div class="card">
+      <h2>Per materia</h2>
+      <table class="cat"><thead><tr><th>Area</th><th>Esito</th><th class="num">Punti</th><th style="width:28%">Rendimento</th></tr></thead><tbody id="resCats"></tbody></table>
+      <p class="note" id="trapNote" style="margin:12px 0 0"></p>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Correzione</h2>
+        <div class="row" id="revFilter"></div>
+      </div>
+      <div id="revList" style="margin-top:10px"></div>
+    </div>
+    <div class="row" style="margin-top:18px;gap:10px">
+      <button class="btn primary" id="newBtn">Nuovo test</button>
+      <button class="btn navy" id="retryBtn">Rifai le stesse domande (risposte rimescolate)</button>
+      <button class="btn ghost" id="retryWrongBtn">Rifai solo errate e omesse</button>
+    </div>
+  </section>
+</div>
+
+<div class="modal hidden" id="modal"><div class="card">
+  <h2 id="mTitle"></h2><p id="mText" style="margin:0 0 18px"></p>
+  <div class="row" style="justify-content:flex-end"><button class="btn ghost" id="mNo">Annulla</button><button class="btn primary" id="mYes">Conferma</button></div>
+</div></div>
+
+<script>
+// Banca dati quesiti - Concorso RIPAM MiC, profilo Codice 01
+// a = risposta corretta, t = trabocchetto, w = risposte errate
+const QUESTIONS = [
+
+// ===== QUESITI COMUNI =====
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 2 della legge n. 241/1990, ove disposizioni di legge o regolamenti non prevedano un termine diverso, i procedimenti di competenza delle amministrazioni statali devono concludersi entro:","a":"Trenta giorni","t":"Novanta giorni","w":["Dieci giorni lavorativi","Un anno dalla presentazione dell'istanza"],"e":"L'art. 2, comma 2, fissa il termine generale di trenta giorni. Novanta giorni è il limite massimo che può essere stabilito con i D.P.C.M. previsti dal comma 3."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Nei procedimenti a istanza di parte, ai sensi dell'art. 10-bis della legge n. 241/1990, gli istanti che hanno ricevuto la comunicazione dei motivi ostativi all'accoglimento possono presentare osservazioni scritte entro:","a":"Dieci giorni dal ricevimento della comunicazione","t":"Trenta giorni dal ricevimento della comunicazione","w":["Ventiquattro ore dalla comunicazione","Sei mesi dalla presentazione della domanda"],"e":"Il preavviso di rigetto concede agli istanti dieci giorni per presentare osservazioni, eventualmente corredate da documenti."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 20 della legge n. 241/1990, l'istituto del silenzio assenso NON si applica, tra l'altro, agli atti e ai procedimenti riguardanti:","a":"Il patrimonio culturale e paesaggistico","t":"Le iscrizioni in albi per l'esercizio di attività commerciali","w":["Qualsiasi procedimento a istanza di parte","Esclusivamente i procedimenti di competenza dei Comuni"],"e":"L'art. 20, comma 4, esclude il silenzio assenso per patrimonio culturale e paesaggistico, ambiente, difesa, sicurezza, immigrazione, salute e altri casi."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 21-octies della legge n. 241/1990, è annullabile il provvedimento amministrativo:","a":"Adottato in violazione di legge o viziato da eccesso di potere o da incompetenza","t":"Adottato in violazione o elusione del giudicato, ovvero da un organo privo di attribuzione","w":["Approvato all'unanimità da un organo collegiale","Notificato al destinatario tramite posta elettronica certificata"],"e":"Violazione di legge, eccesso di potere e incompetenza sono i tre vizi di legittimità che rendono l'atto annullabile. La violazione o elusione del giudicato è invece causa di nullità (art. 21-septies)."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 21-septies della legge n. 241/1990, è nullo il provvedimento amministrativo che:","a":"Manca degli elementi essenziali","t":"È viziato da incompetenza relativa","w":["È stato preceduto dalla comunicazione di avvio del procedimento","Richiama nella motivazione un altro atto dell'amministrazione"],"e":"La nullità colpisce il provvedimento privo di elementi essenziali, viziato da difetto assoluto di attribuzione, adottato in violazione o elusione del giudicato e negli altri casi previsti dalla legge. L'incompetenza (relativa) rende l'atto solo annullabile."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 21-nonies della legge n. 241/1990, nella formulazione vigente, i provvedimenti di autorizzazione o di attribuzione di vantaggi economici illegittimi possono essere annullati d'ufficio entro un termine ragionevole, comunque non superiore a:","a":"Dodici mesi dal momento dell'adozione","t":"Diciotto mesi dal momento dell'adozione","w":["Cinque anni dalla notifica","Trenta giorni dalla pubblicazione"],"e":"Il D.L. n. 77/2021 ha ridotto il termine da diciotto a dodici mesi. Attenzione: alcuni testi non aggiornati (anche quello caricato nel progetto) riportano ancora diciotto mesi."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 22 della legge n. 241/1990, sono «interessati» all'accesso ai documenti amministrativi i soggetti privati che abbiano un interesse:","a":"Diretto, concreto e attuale, collegato a una situazione giuridicamente tutelata","t":"Anche soltanto generico al controllo dell'operato e dell'efficienza della pubblica amministrazione","w":["Esclusivamente economico, documentato da un legale","Riconosciuto da una sentenza passata in giudicato"],"e":"L'accesso documentale richiede un interesse diretto, concreto e attuale. Le istanze preordinate a un controllo generalizzato sono inammissibili (art. 24, comma 3)."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 25 della legge n. 241/1990, decorsi inutilmente trenta giorni dalla richiesta di accesso ai documenti amministrativi:","a":"La richiesta si intende respinta","t":"La richiesta si intende accolta","w":["L'istanza decade e va ripresentata in bollo","L'amministrazione deve rilasciare copia autenticata gratuita"],"e":"Nell'accesso documentale il silenzio ha valore di rigetto: il richiedente può ricorrere al TAR o, per le amministrazioni statali, alla Commissione per l'accesso."},
+{"c":"comuni","m":"Diritto amministrativo","q":"La richiesta di accesso ai documenti amministrativi di cui alla legge n. 241/1990, ai sensi dell'art. 25:","a":"Deve essere motivata","t":"Non richiede alcuna motivazione","w":["Deve essere sottoscritta da almeno due testimoni","Può essere presentata solo tramite il Prefetto"],"e":"L'art. 25, comma 2, richiede la motivazione. È l'accesso civico (D.Lgs. n. 33/2013) a non richiedere motivazione."},
+{"c":"comuni","m":"Diritto amministrativo","q":"L'istanza di accesso civico generalizzato di cui all'art. 5, comma 2, del D.Lgs. n. 33/2013:","a":"Può essere presentata da chiunque e non richiede motivazione","t":"Deve essere motivata da un interesse diretto, concreto e attuale","w":["È ammessa solo per i documenti già pubblicati sul sito","Va presentata esclusivamente tramite il difensore civico"],"e":"L'art. 5, comma 3, esclude limitazioni quanto alla legittimazione soggettiva e stabilisce che l'istanza non richiede motivazione."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 5 del D.Lgs. n. 33/2013, in caso di diniego totale o parziale dell'accesso civico, il richiedente può presentare richiesta di riesame:","a":"Al Responsabile della prevenzione della corruzione e della trasparenza","t":"Al Garante per la protezione dei dati personali","w":["Al Prefetto della provincia","Al Ministro competente per materia"],"e":"Il riesame spetta al RPCT, che decide entro venti giorni. Il Garante interviene solo con un parere quando il diniego è motivato dalla protezione dei dati personali."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 8 del D.Lgs. n. 33/2013, i dati oggetto di pubblicazione obbligatoria sono, di regola, pubblicati per un periodo di:","a":"Cinque anni, dal 1° gennaio dell'anno successivo a quello da cui decorre l'obbligo","t":"Tre anni, decorrenti dalla cessazione dell'incarico o del mandato del soggetto interessato","w":["Un mese dalla data di adozione dell'atto","Cinquant'anni, salvo proroga"],"e":"Il periodo ordinario è di cinque anni. Il termine di tre anni dalla cessazione riguarda specifici obblighi (artt. 14 e 15)."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 9 del D.Lgs. n. 33/2013, nella home page dei siti istituzionali i dati oggetto di pubblicazione obbligatoria sono collocati nella sezione denominata:","a":"Amministrazione trasparente","t":"Albo pretorio online","w":["Area riservata ai dipendenti","Rassegna stampa"],"e":"La sezione «Amministrazione trasparente» è prevista dall'art. 9 e organizzata secondo l'Allegato A del decreto."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi della legge n. 190/2012, il Responsabile della prevenzione della corruzione e della trasparenza è individuato:","a":"Dall'organo di indirizzo, di norma tra i dirigenti di ruolo in servizio","t":"Dall'ANAC, tra i propri funzionari distaccati presso l'ente","w":["Dalle organizzazioni sindacali più rappresentative","Mediante sorteggio tra tutti i dipendenti"],"e":"L'art. 1, comma 7, attribuisce la nomina all'organo di indirizzo, che sceglie di norma tra i dirigenti di ruolo in servizio."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Il Piano nazionale anticorruzione (PNA), ai sensi dell'art. 1, comma 2-bis, della legge n. 190/2012:","a":"È adottato dall'ANAC, ha durata triennale ed è aggiornato annualmente","t":"È predisposto dal Dipartimento della funzione pubblica e approvato dal Parlamento","w":["È adottato da ciascun dipendente all'atto dell'assunzione","È approvato dalla Corte costituzionale ogni dieci anni"],"e":"Il PNA è adottato dall'ANAC e costituisce atto di indirizzo per le amministrazioni. Prima della riforma del 2016 la predisposizione spettava al Dipartimento della funzione pubblica."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 53, comma 16-ter, del D.Lgs. n. 165/2001 (cd. pantouflage), i dipendenti che negli ultimi tre anni di servizio hanno esercitato poteri autoritativi o negoziali non possono svolgere attività presso i soggetti privati destinatari di tali poteri:","a":"Nei tre anni successivi alla cessazione del rapporto","t":"Nei cinque anni successivi alla cessazione del rapporto","w":["Durante il solo periodo di preavviso","Per l'intera vita lavorativa"],"e":"Il divieto dura tre anni dalla cessazione. I contratti conclusi in violazione sono nulli."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi dell'art. 35-bis del D.Lgs. n. 165/2001, chi è stato condannato, anche con sentenza non passata in giudicato, per i delitti dei pubblici ufficiali contro la pubblica amministrazione:","a":"Non può far parte, neppure con compiti di segreteria, di commissioni di concorso","t":"Può far parte delle commissioni di concorso solo se la pena è sospesa","w":["Deve essere trasferito d'ufficio in un'altra regione","È escluso soltanto dalle commissioni di gara sopra un milione di euro"],"e":"La norma, introdotta dalla legge n. 190/2012, preclude la partecipazione alle commissioni e l'assegnazione agli uffici a rischio."},
+{"c":"comuni","m":"Diritto amministrativo","q":"Ai sensi del D.P.R. n. 445/2000, chi rende dichiarazioni sostitutive mendaci:","a":"È punito ai sensi del codice penale e delle leggi speciali in materia","t":"Incorre soltanto in una sanzione amministrativa pecuniaria","w":["Non subisce conseguenze se ritira la domanda","Deve ripetere la dichiarazione davanti a un notaio"],"e":"L'art. 76 del D.P.R. n. 445/2000, richiamato anche dal bando, rinvia alle sanzioni penali; in più il dichiarante decade dai benefici conseguiti."},
+{"c":"comuni","m":"Diritto amministrativo","q":"In base al Codice di comportamento dei dipendenti pubblici (D.P.R. n. 62/2013), si considerano di modico valore i regali e le altre utilità di valore non superiore, in via orientativa, a:","a":"150 euro, anche sotto forma di sconto","t":"300 euro, anche sotto forma di sconto","w":["1.000 euro per ciascun regalo","Qualsiasi importo, purché dichiarato al dirigente"],"e":"L'art. 4 del D.P.R. n. 62/2013 fissa il riferimento orientativo di 150 euro; i codici delle singole amministrazioni possono prevedere limiti inferiori."},
+{"c":"comuni","m":"Diritto amministrativo","q":"La disciplina della protezione delle persone che segnalano violazioni (cd. whistleblowing), in attuazione della direttiva (UE) 2019/1937, è oggi contenuta principalmente:","a":"Nel D.Lgs. n. 24/2023","t":"Nell'art. 54-bis del D.Lgs. n. 165/2001, tuttora vigente","w":["Nel D.P.R. n. 445/2000","Nell'art. 2043 del codice civile"],"e":"Il D.Lgs. n. 24/2023 ha riordinato la materia e abrogato l'art. 54-bis del D.Lgs. n. 165/2001."},
+{"c":"comuni","m":"Contratti pubblici","q":"Il Codice dei contratti pubblici (D.Lgs. n. 36/2023) si apre, all'art. 1, con l'enunciazione del principio:","a":"Del risultato","t":"Della fiducia","w":["Del prezzo più basso in ogni caso","Dell'anonimato dei funzionari"],"e":"L'art. 1 enuncia il principio del risultato; l'art. 2 il principio della fiducia; l'art. 3 quello dell'accesso al mercato."},
+{"c":"comuni","m":"Contratti pubblici","q":"Nel D.Lgs. n. 36/2023 l'acronimo RUP indica il:","a":"Responsabile unico del progetto","t":"Responsabile unico del procedimento","w":["Registro unico dei pagamenti","Revisore unico pubblico"],"e":"Il nuovo Codice (art. 15) parla di responsabile unico del progetto; «responsabile unico del procedimento» era la denominazione del Codice previgente (D.Lgs. n. 50/2016)."},
+{"c":"comuni","m":"Contratti pubblici","q":"Ai sensi dell'art. 50 del D.Lgs. n. 36/2023, le stazioni appaltanti procedono all'affidamento diretto dei servizi e delle forniture di importo inferiore a:","a":"140.000 euro","t":"150.000 euro","w":["5.000 euro","2.000.000 di euro"],"e":"Per servizi e forniture la soglia è 140.000 euro; per i lavori l'affidamento diretto è ammesso sotto i 150.000 euro."},
+{"c":"comuni","m":"Contratti pubblici","q":"La Banca dati nazionale dei contratti pubblici (BDNCP) è gestita da:","a":"ANAC","t":"Consip S.p.A.","w":["Banca d'Italia","ISTAT"],"e":"La BDNCP è gestita dall'Autorità nazionale anticorruzione. Consip è la centrale di committenza nazionale."},
+{"c":"comuni","m":"Lavoro pubblico","q":"Ai sensi dell'art. 2 del D.Lgs. n. 165/2001, i rapporti di lavoro dei dipendenti delle amministrazioni pubbliche sono disciplinati:","a":"Dal codice civile e dalle leggi sul lavoro subordinato nell'impresa, salvo diverse disposizioni del decreto","t":"Esclusivamente da norme di diritto pubblico, dai regolamenti interni dell'ente e dai provvedimenti del dirigente","w":["Dai soli contratti individuali firmati con il dirigente","Dal Testo unico degli enti locali per tutte le amministrazioni"],"e":"È il principio della cd. privatizzazione del pubblico impiego: il rapporto è regolato dal diritto privato e dalla contrattazione collettiva, salvo le eccezioni previste."},
+{"c":"comuni","m":"Lavoro pubblico","q":"La rappresentanza negoziale delle pubbliche amministrazioni nella contrattazione collettiva nazionale è affidata a:","a":"ARAN","t":"Dipartimento della funzione pubblica","w":["INPS","Conferenza Stato-Regioni"],"e":"L'Agenzia per la rappresentanza negoziale delle pubbliche amministrazioni (ARAN) rappresenta le amministrazioni nella contrattazione collettiva nazionale."},
+{"c":"comuni","m":"Lavoro pubblico","q":"Il CCNL del comparto Funzioni centrali articola il personale non dirigente in aree. Quale tra le seguenti NON è un'area prevista?","a":"Area dei collaboratori","t":"Area delle elevate professionalità","w":["Area degli operatori","Area degli assistenti"],"e":"Le aree sono: operatori, assistenti, funzionari, elevate professionalità. Il concorso riguarda l'Area degli assistenti."},
+{"c":"comuni","m":"Lavoro pubblico","q":"Ai sensi dell'art. 55-quater del D.Lgs. n. 165/2001, la falsa attestazione della presenza in servizio comporta:","a":"Il licenziamento disciplinare","t":"La sospensione dal servizio fino a un massimo di dieci giorni","w":["Un semplice richiamo verbale","Il trasferimento ad altra sede senza sanzione"],"e":"La falsa attestazione della presenza in servizio è tra le ipotesi tipiche di licenziamento disciplinare."},
+{"c":"comuni","m":"Lavoro pubblico","q":"Ai sensi dell'art. 54 del D.Lgs. n. 165/2001, la violazione dei doveri contenuti nel codice di comportamento:","a":"È fonte di responsabilità disciplinare","t":"Ha rilievo soltanto morale, senza conseguenze giuridiche","w":["Determina automaticamente la reclusione","Comporta solo una multa a carico dell'amministrazione"],"e":"Il comma 3 stabilisce che la violazione è fonte di responsabilità disciplinare e può rilevare anche ai fini della responsabilità civile, amministrativa e contabile."},
+{"c":"comuni","m":"Responsabilità","q":"Secondo l'art. 28 della Costituzione, i funzionari e i dipendenti dello Stato e degli enti pubblici sono direttamente responsabili degli atti compiuti in violazione di diritti:","a":"Secondo le leggi penali, civili e amministrative","t":"Esclusivamente secondo le leggi penali","w":["Solo se dirigenti di prima fascia","Solo nei confronti dei colleghi d'ufficio"],"e":"L'art. 28 Cost. prevede la responsabilità diretta secondo le leggi penali, civili e amministrative; in tali casi la responsabilità civile si estende allo Stato e agli enti pubblici."},
+{"c":"comuni","m":"Responsabilità","q":"La responsabilità amministrativo-contabile del dipendente pubblico per danno erariale è accertata:","a":"Dalla Corte dei conti","t":"Dal Tribunale amministrativo regionale","w":["Dall'Ufficio relazioni con il pubblico","Dal Garante per la protezione dei dati personali"],"e":"La giurisdizione sulla responsabilità per danno erariale spetta alla Corte dei conti (art. 103 Cost.)."},
+{"c":"comuni","m":"Protezione dei dati personali","q":"Ai sensi dell'art. 33 del Regolamento (UE) 2016/679, in caso di violazione dei dati personali il titolare la notifica all'autorità di controllo, ove possibile, entro:","a":"72 ore dal momento in cui ne è venuto a conoscenza","t":"24 ore dal momento in cui ne è venuto a conoscenza","w":["Trenta giorni dalla conclusione dell'indagine interna","La fine dell'anno solare"],"e":"Il termine è di 72 ore; oltre tale termine la notifica va corredata dei motivi del ritardo."},
+{"c":"comuni","m":"Protezione dei dati personali","q":"Ai sensi dell'art. 4 del Regolamento (UE) 2016/679, per «dato personale» si intende qualsiasi informazione riguardante:","a":"Una persona fisica identificata o identificabile","t":"Una persona fisica o giuridica, purché identificata","w":["Esclusivamente lo stato di salute di una persona","Le sole informazioni pubblicate sui social network"],"e":"Il GDPR tutela le persone fisiche; i dati delle persone giuridiche non rientrano nella definizione."},
+{"c":"comuni","m":"Protezione dei dati personali","q":"Ai sensi del Regolamento (UE) 2016/679, la designazione del Responsabile della protezione dei dati (RPD/DPO) è obbligatoria:","a":"Quando il trattamento è effettuato da un'autorità pubblica o da un organismo pubblico","t":"Solo per le amministrazioni con più di 250 dipendenti","w":["Mai, essendo sempre facoltativa","Solo per i trattamenti svolti su supporto cartaceo"],"e":"L'art. 37 rende obbligatoria la designazione per autorità e organismi pubblici, eccettuate le autorità giurisdizionali nell'esercizio delle funzioni giurisdizionali."},
+{"c":"comuni","m":"Protezione dei dati personali","q":"Quale tra i seguenti è uno dei principi applicabili al trattamento dei dati personali elencati dall'art. 5 del Regolamento (UE) 2016/679?","a":"Minimizzazione dei dati","t":"Consenso dell'interessato come unica base giuridica del trattamento","w":["Pubblicità integrale dei dati raccolti","Conservazione illimitata in ogni caso"],"e":"L'art. 5 elenca liceità, correttezza e trasparenza, limitazione della finalità, minimizzazione, esattezza, limitazione della conservazione, integrità e riservatezza, responsabilizzazione. Il consenso è solo una delle basi giuridiche dell'art. 6."},
+{"c":"comuni","m":"Diritto penale","q":"Ai sensi dell'art. 357 del codice penale, agli effetti della legge penale sono pubblici ufficiali coloro i quali esercitano una pubblica funzione:","a":"Legislativa, giudiziaria o amministrativa","t":"Esclusivamente amministrativa, con potere di firma","w":["Solo se assunti con concorso pubblico","Solo se dipendenti dello Stato e non degli enti locali"],"e":"Conta la funzione esercitata e non il rapporto di impiego: è la cd. concezione oggettiva."},
+{"c":"comuni","m":"Diritto penale","q":"Il pubblico ufficiale che, avendo per ragione del suo ufficio il possesso o la disponibilità di denaro o di altra cosa mobile altrui, se ne appropria commette il reato di:","a":"Peculato (art. 314 c.p.)","t":"Indebita destinazione di denaro o cose mobili (art. 314-bis c.p.)","w":["Concussione (art. 317 c.p.)","Rifiuto di atti d'ufficio (art. 328 c.p.)"],"e":"L'appropriazione integra il peculato. L'art. 314-bis punisce invece, fuori dei casi di peculato, la destinazione del bene a un uso diverso da quello previsto."},
+{"c":"comuni","m":"Diritto penale","q":"Con riferimento al delitto di abuso d'ufficio (art. 323 c.p.), è corretto affermare che:","a":"È stato abrogato dalla legge n. 114/2024","t":"È stato trasformato in illecito amministrativo sanzionato dall'ANAC","w":["È punito con l'ergastolo nei casi più gravi","Si applica soltanto ai privati cittadini"],"e":"La legge n. 114/2024 (in vigore dal 25 agosto 2024) ha abrogato l'art. 323 c.p. Il codice penale caricato nel progetto (edizione 2022) riporta ancora il vecchio testo."},
+{"c":"comuni","m":"Diritto penale","q":"Il pubblico ufficiale che, abusando della sua qualità o dei suoi poteri, costringe taluno a dare o a promettere indebitamente denaro o altra utilità commette il reato di:","a":"Concussione","t":"Induzione indebita a dare o promettere utilità","w":["Peculato d'uso","Interruzione di pubblico servizio"],"e":"La concussione (art. 317 c.p.) richiede la costrizione; nell'induzione indebita (art. 319-quater) il privato è indotto e risponde anch'egli."},
+{"c":"comuni","m":"Diritto penale","q":"Nel reato di induzione indebita a dare o promettere utilità (art. 319-quater c.p.), il privato che dà o promette il denaro:","a":"È anch'egli punito","t":"Non è punibile, perché considerato vittima","w":["È punito solo se il pubblico ufficiale è un magistrato","Ha diritto a un indennizzo da parte dello Stato"],"e":"Il secondo comma dell'art. 319-quater punisce anche chi dà o promette denaro o altra utilità."},
+{"c":"comuni","m":"Diritto penale","q":"Il pubblico ufficiale che, per l'esercizio delle sue funzioni o dei suoi poteri, indebitamente riceve denaro o ne accetta la promessa commette:","a":"Corruzione per l'esercizio della funzione (art. 318 c.p.)","t":"Corruzione per un atto contrario ai doveri d'ufficio (art. 319 c.p.)","w":["Truffa aggravata ai danni dello Stato","Rivelazione di segreti d'ufficio"],"e":"L'art. 318 non richiede un atto specifico contrario ai doveri; se il compenso riguarda un atto contrario ai doveri d'ufficio si applica l'art. 319."},
+{"c":"comuni","m":"Diritto penale","q":"Il pubblico ufficiale che indebitamente rifiuta un atto del suo ufficio che, per ragioni di giustizia, sicurezza pubblica, ordine pubblico o igiene e sanità, deve essere compiuto senza ritardo commette:","a":"Rifiuto di atti d'ufficio (art. 328 c.p.)","t":"Interruzione di un ufficio o servizio pubblico (art. 340 c.p.)","w":["Peculato (art. 314 c.p.)","Corruzione tra privati"],"e":"È la fattispecie del primo comma dell'art. 328 c.p."},
+{"c":"comuni","m":"Codice dell'amministrazione digitale","q":"Lo SPID, richiamato dall'art. 64 del D.Lgs. n. 82/2005 (CAD), è:","a":"Il Sistema pubblico di identità digitale per accedere ai servizi in rete","t":"Il servizio di posta elettronica certificata della pubblica amministrazione","w":["Un software di contabilità per gli enti locali","Il registro informatico dei dipendenti pubblici"],"e":"Lo SPID consente a cittadini e imprese di accedere con un'unica identità digitale ai servizi online delle PA e dei privati aderenti."},
+{"c":"comuni","m":"Codice dell'amministrazione digitale","q":"L'indice nazionale dei domicili digitali delle persone fisiche, dei professionisti e degli altri enti di diritto privato non tenuti all'iscrizione in albi o registri è denominato:","a":"INAD","t":"INI-PEC","w":["BDNCP","NoiPA"],"e":"L'INAD è previsto dall'art. 6-quater del CAD. INI-PEC raccoglie invece i domicili digitali di imprese e professionisti iscritti in albi e registri."},
+{"c":"comuni","m":"Codice dell'amministrazione digitale","q":"Secondo il CAD, la firma digitale è un particolare tipo di firma elettronica qualificata basata su:","a":"Un sistema di chiavi crittografiche, una pubblica e una privata, correlate tra loro","t":"Un sistema di credenziali composto da nome utente, password personale e codice inviato via SMS","w":["La scansione della firma autografa in un file PDF","Un timbro dell'ufficio apposto sulla copia cartacea"],"e":"La chiave privata serve a firmare, la chiave pubblica consente al destinatario di verificare provenienza e integrità del documento."},
+{"c":"comuni","m":"Codice dell'amministrazione digitale","q":"Ai sensi dell'art. 17 del CAD, ciascuna pubblica amministrazione affida a un unico ufficio dirigenziale la transizione alla modalità operativa digitale; il relativo responsabile è denominato:","a":"Responsabile per la transizione al digitale","t":"Responsabile della conservazione dei documenti informatici","w":["Commissario straordinario per l'informatica","Garante dei social network istituzionali"],"e":"Il Responsabile per la transizione al digitale (RTD) coordina i processi di digitalizzazione dell'ente."},
+{"c":"comuni","m":"Codice dell'amministrazione digitale","q":"Ai sensi dell'art. 48 del CAD, la trasmissione di un documento informatico mediante posta elettronica certificata, nei casi consentiti dalla legge, equivale:","a":"Alla notificazione per mezzo della posta","t":"Alla pubblicazione nell'albo pretorio online","w":["A una comunicazione informale priva di valore legale","Al deposito dell'atto presso un notaio"],"e":"La PEC fornisce ricevuta di invio e di consegna e, nei casi consentiti, equivale alla notificazione a mezzo posta."},
+{"c":"comuni","m":"Codice dell'amministrazione digitale","q":"L'Agenzia per l'Italia digitale (AgID):","a":"Detta linee guida e regole tecniche per la digitalizzazione della PA","t":"È l'autorità di controllo competente per le violazioni dei dati personali","w":["Gestisce i concorsi pubblici dei Ministeri","Rilascia i passaporti elettronici"],"e":"L'AgID cura l'attuazione dell'agenda digitale e adotta le linee guida previste dal CAD. L'autorità di controllo in materia di privacy è il Garante."},
+{"c":"comuni","m":"Diritto dell'Unione europea","q":"Ai sensi dell'art. 288 TFUE, il regolamento:","a":"Ha portata generale, è obbligatorio in tutti i suoi elementi e direttamente applicabile negli Stati membri","t":"Vincola lo Stato membro cui è rivolto per quanto riguarda il risultato da raggiungere, lasciando libertà sui mezzi","w":["Non è vincolante ed esprime un semplice orientamento politico","Si applica solo dopo la ratifica da parte di ogni parlamento nazionale"],"e":"La seconda opzione descrive la direttiva. Raccomandazioni e pareri non sono vincolanti."},
+{"c":"comuni","m":"Diritto dell'Unione europea","q":"Ai sensi dell'art. 288 TFUE, la direttiva:","a":"Vincola lo Stato membro cui è rivolta per quanto riguarda il risultato","t":"È direttamente applicabile in tutti i suoi elementi senza recepimento","w":["Ha valore di semplice parere non vincolante","È adottata esclusivamente dalla Corte di giustizia"],"e":"La direttiva lascia agli Stati la scelta della forma e dei mezzi e richiede, di norma, un atto nazionale di recepimento."},
+{"c":"comuni","m":"Diritto dell'Unione europea","q":"Nella procedura legislativa ordinaria dell'Unione europea, il potere di iniziativa spetta, di regola, a:","a":"Commissione europea","t":"Consiglio europeo","w":["Corte dei conti europea","Banca centrale europea"],"e":"La Commissione propone; Parlamento europeo e Consiglio dell'UE adottano. Il Consiglio europeo non esercita funzioni legislative."},
+{"c":"comuni","m":"Diritto dell'Unione europea","q":"La Corte di giustizia dell'Unione europea ha sede a:","a":"Lussemburgo","t":"Strasburgo","w":["Vienna","Lisbona"],"e":"A Strasburgo hanno sede il Parlamento europeo (sessioni plenarie) e la Corte europea dei diritti dell'uomo, che non è un'istituzione dell'UE."},
+{"c":"comuni","m":"Diritto dell'Unione europea","q":"Il Trattato di Lisbona è entrato in vigore il:","a":"1° dicembre 2009","t":"13 dicembre 2007","w":["1° gennaio 1958","9 maggio 1950"],"e":"Il Trattato è stato firmato il 13 dicembre 2007 ed è entrato in vigore il 1° dicembre 2009."},
+{"c":"comuni","m":"Diritto dell'Unione europea","q":"Con il Trattato di Lisbona, la Carta dei diritti fondamentali dell'Unione europea:","a":"Ha acquisito lo stesso valore giuridico dei Trattati","t":"È rimasta una dichiarazione politica priva di efficacia vincolante","w":["È stata sostituita dalla Costituzione italiana","È stata abrogata"],"e":"L'art. 6 TUE riconosce alla Carta lo stesso valore giuridico dei Trattati."},
+{"c":"comuni","m":"Diritto dell'Unione europea","q":"I membri del Parlamento europeo sono eletti:","a":"A suffragio universale diretto, per un mandato di cinque anni","t":"Dai parlamenti nazionali tra i propri membri, ogni cinque anni","w":["Dal Consiglio europeo all'unanimità","A vita, dai capi di Stato"],"e":"L'elezione diretta è in vigore dal 1979; prima i membri erano designati dai parlamenti nazionali."},
+{"c":"comuni","m":"Contabilità di Stato","q":"Nell'ordinamento contabile dello Stato, l'esercizio finanziario:","a":"Coincide con l'anno solare, dal 1° gennaio al 31 dicembre","t":"Va dal 1° luglio al 30 giugno dell'anno successivo","w":["Ha durata triennale","È fissato liberamente da ciascun Ministero"],"e":"Dal 1965 l'esercizio finanziario coincide con l'anno solare; in precedenza decorreva dal 1° luglio."},
+{"c":"comuni","m":"Contabilità di Stato","q":"Le fasi del procedimento di spesa nel bilancio dello Stato, nel loro ordine, sono:","a":"Impegno, liquidazione, ordinazione, pagamento","t":"Accertamento, riscossione, versamento","w":["Programmazione, gara, collaudo, archiviazione","Previsione, assestamento, rendiconto, revisione"],"e":"Accertamento, riscossione e versamento sono le fasi dell'entrata."},
+{"c":"comuni","m":"Contabilità di Stato","q":"I residui passivi sono:","a":"Le somme impegnate e non pagate entro la chiusura dell'esercizio","t":"Le somme accertate e non riscosse entro la chiusura dell'esercizio","w":["I debiti contratti dai privati verso le banche","Le giacenze di cassa presso la Banca d'Italia"],"e":"Le somme accertate e non riscosse (o non versate) costituiscono i residui attivi."},
+{"c":"comuni","m":"Contabilità di Stato","q":"Ai sensi dell'art. 81 della Costituzione, l'esercizio provvisorio del bilancio può essere concesso solo per legge e per periodi non superiori complessivamente a:","a":"Quattro mesi","t":"Sei mesi","w":["Due anni","Quindici giorni"],"e":"L'art. 81, quinto comma, Cost. fissa il limite di quattro mesi."},
+{"c":"comuni","m":"Contabilità di Stato","q":"Il rendiconto generale dello Stato, prima della presentazione al Parlamento, è sottoposto:","a":"Al giudizio di parificazione della Corte dei conti","t":"Al parere vincolante del Consiglio di Stato","w":["A un referendum confermativo","Alla certificazione di una società di revisione privata"],"e":"La Corte dei conti parifica il rendiconto prima che sia approvato con legge dal Parlamento."},
+{"c":"comuni","m":"Contabilità di Stato","q":"In base alla legge n. 196/2009, le unità di voto parlamentare del bilancio dello Stato sono rappresentate dai:","a":"Programmi","t":"Missioni","w":["Regioni beneficiarie","Uffici dirigenziali di secondo livello"],"e":"Le spese sono ripartite in missioni (funzioni principali) e programmi; l'unità di voto è il programma."},
+{"c":"comuni","m":"Lingua inglese","q":"Choose the correct option: «She ___ to the museum every Sunday.»","a":"goes","t":"go","w":["going","gone"],"e":"Present simple, terza persona singolare: aggiunge -es (she goes)."},
+{"c":"comuni","m":"Lingua inglese","q":"Complete the sentence: «Yesterday we ___ the new exhibition.»","a":"visited","t":"have visited","w":["visit","will visit"],"e":"Con «yesterday» si usa il past simple; il present perfect non si usa con un tempo passato definito."},
+{"c":"comuni","m":"Lingua inglese","q":"Qual è la traduzione corretta di «libreria» intesa come negozio di libri?","a":"Bookshop","t":"Library","w":["Liberty","Labour"],"e":"«Library» è un false friend: significa biblioteca."},
+{"c":"comuni","m":"Lingua inglese","q":"«Could you tell me where the toilets are?» Choose the most appropriate answer.","a":"Of course, they're on the ground floor.","t":"Yes, I could.","w":["No, I'm thirsty.","They is closed yesterday."],"e":"La domanda è una richiesta cortese di informazioni, non una domanda sulla capacità: la risposta adeguata fornisce l'informazione."},
+{"c":"comuni","m":"Lingua inglese","q":"Choose the correct preposition: «The museum opens ___ 9 a.m.»","a":"at","t":"on","w":["of","under"],"e":"Con l'ora si usa «at»; «on» si usa con i giorni (on Monday)."},
+{"c":"comuni","m":"Lingua inglese","q":"Complete: «There ___ many visitors in the gallery yesterday.»","a":"were","t":"was","w":["be","been"],"e":"Soggetto plurale (many visitors) al passato: there were."},
+{"c":"comuni","m":"Lingua inglese","q":"Choose the correct comparative: «This room is ___ than the other one.»","a":"bigger","t":"more big","w":["biggest","the big"],"e":"Gli aggettivi monosillabici formano il comparativo con -er (con raddoppio della consonante: big, bigger)."},
+{"c":"comuni","m":"Lingua inglese","q":"La frase «Visitors must not touch the paintings» significa:","a":"È vietato ai visitatori toccare i dipinti","t":"I visitatori non sono obbligati a toccare i dipinti","w":["I visitatori possono toccare i dipinti","I visitatori devono toccare i dipinti"],"e":"«Must not» esprime un divieto; «don't have to» esprimerebbe l'assenza di obbligo."},
+{"c":"comuni","m":"Lingua inglese","q":"Choose the correct question: «___ does the ticket cost?»","a":"How much","t":"How many","w":["How long","Where"],"e":"«How much» si usa per i prezzi e i nomi non numerabili; «how many» per i nomi numerabili."},
+{"c":"comuni","m":"Informatica","q":"In Microsoft Excel, il riferimento di cella $A$1 è un riferimento:","a":"Assoluto","t":"Misto","w":["Circolare","Ipertestuale"],"e":"Il simbolo $ blocca riga e colonna. Un riferimento misto blocca solo una delle due (es. $A1 o A$1)."},
+{"c":"comuni","m":"Informatica","q":"In Excel, quale formula restituisce la somma dei valori contenuti nelle celle da B2 a B10?","a":"=SOMMA(B2:B10)","t":"=SOMMA(B2;B10)","w":["=CONTA(B2-B10)","SOMMA=B2+B10"],"e":"I due punti indicano un intervallo; il punto e virgola separa argomenti distinti, quindi =SOMMA(B2;B10) somma solo le due celle."},
+{"c":"comuni","m":"Informatica","q":"Nei principali programmi per Windows, la combinazione di tasti CTRL+Z serve a:","a":"Annullare l'ultima operazione","t":"Ripetere l'ultima operazione annullata","w":["Spegnere il computer","Stampare il documento"],"e":"CTRL+Z annulla; CTRL+Y ripete l'operazione annullata."},
+{"c":"comuni","m":"Informatica","q":"Il phishing è:","a":"Una frode che induce l'utente a fornire dati riservati con messaggi in apparenza affidabili","t":"Un virus che cifra i file presenti sul computer e chiede il pagamento di un riscatto per sbloccarli","w":["Un protocollo per la posta elettronica certificata","Un formato di compressione delle immagini"],"e":"Il malware che cifra i file e chiede un riscatto è il ransomware."},
+{"c":"comuni","m":"Informatica","q":"La memoria RAM:","a":"È una memoria volatile, che perde i dati allo spegnimento","t":"È una memoria di sola lettura che contiene il firmware di avvio","w":["È un'unità esterna destinata ai backup","È il sistema operativo dei computer Apple"],"e":"La memoria di sola lettura è la ROM. La RAM conserva temporaneamente dati e programmi in uso."},
+{"c":"comuni","m":"Informatica","q":"Nella posta elettronica, il campo CCN (copia conoscenza nascosta) consente di:","a":"Inviare il messaggio a destinatari i cui indirizzi non sono visibili agli altri","t":"Inviare una copia del messaggio visibile a tutti i destinatari","w":["Firmare digitalmente il messaggio","Programmare l'invio in una data futura"],"e":"Il campo CC mostra gli indirizzi a tutti; il campo CCN li nasconde."},
+{"c":"comuni","m":"Informatica","q":"Un byte è composto da:","a":"8 bit","t":"1.024 bit","w":["2 bit","16 kilobyte"],"e":"1 byte = 8 bit. Il valore 1.024 compare nei multipli binari (1 KiB = 1.024 byte)."},
+{"c":"comuni","m":"Informatica","q":"L'autenticazione a due fattori:","a":"Richiede due prove di identità di natura diversa, ad esempio password e codice sul telefono","t":"Richiede di digitare due volte consecutive la stessa password, per evitare errori di battitura","w":["Consente l'accesso senza alcuna credenziale","È un tipo di stampante di rete"],"e":"I fattori devono essere di natura diversa: qualcosa che si conosce, che si possiede o che si è."},
+{"c":"comuni","m":"Informatica","q":"Quale estensione identifica una cartella di lavoro di Microsoft Excel nel formato predefinito delle versioni recenti?","a":".xlsx","t":".xls","w":[".pptx",".mp3"],"e":".xls è il formato delle versioni fino a Excel 2003; dal 2007 il formato predefinito è .xlsx."},
+{"c":"comuni","m":"Informatica","q":"In un foglio di calcolo, la funzione SE serve a:","a":"Restituire un valore se una condizione è vera e un altro se è falsa","t":"Contare le celle che soddisfano una determinata condizione","w":["Ordinare alfabeticamente una colonna","Inserire un grafico a torta"],"e":"Per contare le celle che soddisfano una condizione si usa CONTA.SE."},
+{"c":"comuni","m":"Informatica","q":"Il formato PDF/A è particolarmente indicato per:","a":"La conservazione a lungo termine dei documenti","t":"La modifica collaborativa del testo in tempo reale","w":["La riproduzione di file audio","Il montaggio di video"],"e":"Il PDF/A è uno standard ISO pensato per l'archiviazione e la conservazione digitale."},
+{"c":"comuni","m":"Informatica","q":"Il backup è:","a":"Una copia di sicurezza dei dati, da usare per ripristinarli in caso di perdita","t":"La cancellazione periodica dei file temporanei e della cronologia per liberare spazio sul disco","w":["Un tipo di cavo di rete","Un programma di videoscrittura"],"e":"Il backup va conservato su un supporto o servizio diverso da quello originale."},
+{"c":"comuni","m":"Informatica","q":"Nell'indirizzo di un sito web, il prefisso HTTPS indica che:","a":"La comunicazione tra browser e server è cifrata","t":"Il sito appartiene necessariamente a una pubblica amministrazione","w":["Il sito è accessibile solo da smartphone","La pagina non contiene immagini"],"e":"La «S» indica l'uso di un protocollo sicuro (TLS); non garantisce di per sé l'identità o l'affidabilità del titolare del sito."},
+
+// ===== QUESITI SPECIFICI CODICE 01 =====
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 17 del D.Lgs. n. 81/2008, quali obblighi il datore di lavoro NON può delegare?","a":"La valutazione dei rischi con elaborazione del DVR e la designazione del RSPP","t":"La designazione dei lavoratori incaricati del primo soccorso e della gestione delle emergenze","w":["La scelta della ditta che fornisce il materiale di cancelleria","L'organizzazione dei turni di apertura della biglietteria"],"e":"Gli obblighi indelegabili sono due: valutazione dei rischi con redazione del documento (DVR) e designazione del responsabile del servizio di prevenzione e protezione."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nel D.Lgs. n. 81/2008, l'acronimo RLS indica il:","a":"Rappresentante dei lavoratori per la sicurezza","t":"Responsabile della logistica e della sicurezza degli impianti","w":["Registro dei lavori svolti","Regolamento locale di sorveglianza"],"e":"Il RLS è eletto o designato per rappresentare i lavoratori per gli aspetti di salute e sicurezza. Il responsabile del servizio di prevenzione e protezione è il RSPP."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nella segnaletica di sicurezza (Allegato XXV del D.Lgs. n. 81/2008), i cartelli di prescrizione hanno forma:","a":"Rotonda, con pittogramma bianco su fondo azzurro","t":"Triangolare, con pittogramma nero su fondo giallo","w":["Esagonale, di colore viola","Libera, scelta dal datore di lavoro"],"e":"Il cartello triangolare giallo con bordo nero è quello di avvertimento."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nella segnaletica di sicurezza, il colore verde indica:","a":"Salvataggio, soccorso, situazione di sicurezza","t":"Prescrizione, cioè comportamento o azione specifica obbligatoria","w":["Area riservata ai fumatori","Zona di sosta a pagamento"],"e":"L'azzurro indica la prescrizione; il verde segnala uscite di emergenza, percorsi di esodo e presidi di soccorso."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nella segnaletica di sicurezza, il colore rosso è associato a:","a":"Divieto, pericolo-allarme e materiali e attrezzature antincendio","t":"Avvertimento: attenzione, precauzione, verifica","w":["Indicazioni turistiche sul percorso di visita e sui servizi del museo","Aree ristoro per il personale"],"e":"Il giallo (o giallo-arancio) è il colore dell'avvertimento."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 74 del D.Lgs. n. 81/2008, si intende per dispositivo di protezione individuale (DPI):","a":"Qualsiasi attrezzatura destinata a essere indossata e tenuta dal lavoratore per proteggerlo contro uno o più rischi","t":"Qualsiasi misura di protezione collettiva, come parapetti, reti anticaduta, barriere e impianti di aspirazione dei fumi","w":["Il documento che riporta la valutazione dei rischi","Il tesserino di riconoscimento del dipendente"],"e":"Le misure collettive hanno priorità sui DPI, che si usano quando i rischi non possono essere evitati o ridotti in altro modo."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Secondo la classificazione del Regolamento (UE) 2016/425, i DPI di terza categoria proteggono da:","a":"Rischi che possono causare conseguenze molto gravi, come morte o danni irreversibili","t":"Rischi minimi, come lesioni meccaniche superficiali o contatto con prodotti per la pulizia di debole azione","w":["Rischi di natura esclusivamente estetica","Disagi derivanti dalla temperatura degli uffici"],"e":"La prima categoria riguarda i rischi minimi; la terza i rischi più gravi."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 77 del D.Lgs. n. 81/2008, l'addestramento all'uso è in ogni caso indispensabile:","a":"Per ogni DPI di terza categoria e per i dispositivi di protezione dell'udito","t":"Per i soli DPI di prima categoria","w":["Per nessun DPI, bastando la lettura del manuale","Solo per i DPI acquistati personalmente dal lavoratore"],"e":"Il comma 5 dell'art. 77 prevede l'addestramento obbligatorio per i DPI di terza categoria e per i protettori auricolari."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 20 del D.Lgs. n. 81/2008, il lavoratore deve:","a":"Utilizzare in modo appropriato i DPI messi a sua disposizione","t":"Acquistare personalmente i DPI necessari allo svolgimento delle mansioni","w":["Rimuovere i dispositivi di segnalazione ritenuti superflui","Rifiutare la partecipazione ai corsi di formazione"],"e":"I DPI sono forniti dal datore di lavoro; il lavoratore ha l'obbligo di utilizzarli correttamente e di non modificarli."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nel D.Lgs. n. 81/2008, il preposto è la persona che:","a":"Sovrintende all'attività lavorativa e garantisce l'attuazione delle direttive ricevute, controllandone la corretta esecuzione","t":"Rappresenta i lavoratori per gli aspetti della salute e della sicurezza durante il lavoro e accede ai luoghi in cui si svolgono le lavorazioni","w":["Redige il bilancio di esercizio dell'amministrazione","Rilascia le autorizzazioni paesaggistiche"],"e":"La seconda opzione descrive il RLS. Il preposto ha compiti di vigilanza sull'osservanza delle disposizioni da parte dei lavoratori."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nel D.Lgs. n. 81/2008, la sorveglianza sanitaria dei lavoratori è effettuata da:","a":"Medico competente","t":"Responsabile del servizio di prevenzione e protezione","w":["Comitato unico di garanzia","Ufficio relazioni con il pubblico"],"e":"Il medico competente collabora alla valutazione dei rischi ed effettua la sorveglianza sanitaria nei casi previsti."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 35 del D.Lgs. n. 81/2008, nelle aziende e unità produttive con più di 15 lavoratori il datore di lavoro indice almeno una volta all'anno:","a":"Una riunione periodica di prevenzione e protezione dai rischi","t":"Una prova di evacuazione congiunta con i Vigili del fuoco","w":["Un'assemblea per eleggere il medico competente","Un concorso interno per nominare il preposto"],"e":"Alla riunione partecipano datore di lavoro, RSPP, medico competente e RLS. Il medico competente non è eletto ma nominato dal datore di lavoro."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi del Titolo VII del D.Lgs. n. 81/2008, è considerato lavoratore addetto ai videoterminali chi li utilizza in modo sistematico o abituale per almeno:","a":"Venti ore settimanali, dedotte le interruzioni","t":"Quattro ore giornaliere continuative","w":["Un'ora al mese","Qualsiasi durata, anche occasionale o limitata a pochi minuti al giorno"],"e":"La soglia è di venti ore settimanali (art. 173)."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 175 del D.Lgs. n. 81/2008, in assenza di diversa disciplina contrattuale, il lavoratore addetto ai videoterminali ha diritto a una pausa di quindici minuti ogni:","a":"Centoventi minuti di applicazione continuativa","t":"Sessanta minuti di applicazione continuativa","w":["Otto ore di lavoro","Settimana lavorativa"],"e":"La pausa (o cambiamento di attività) è di quindici minuti ogni due ore."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nei cantieri temporanei o mobili (Titolo IV del D.Lgs. n. 81/2008), il Piano di sicurezza e di coordinamento (PSC) è redatto dal:","a":"Coordinatore per la progettazione","t":"Datore di lavoro di ciascuna impresa esecutrice","w":["Direttore del museo in cui si svolgono i lavori","Ufficio anagrafe del Comune"],"e":"Ciascuna impresa esecutrice redige il proprio Piano operativo di sicurezza (POS)."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nei cantieri temporanei o mobili, il Piano operativo di sicurezza (POS) è redatto:","a":"Dal datore di lavoro di ciascuna impresa esecutrice","t":"Dal committente, in un unico esemplare valido per tutte le imprese","w":["Dal Prefetto competente per territorio","Dai visitatori ammessi in cantiere"],"e":"Il POS è specifico di ogni impresa ed è complementare al PSC."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nei cantieri in cui è prevista la presenza di più imprese esecutrici, il coordinatore per l'esecuzione dei lavori è designato da:","a":"Committente o responsabile dei lavori","t":"Impresa affidataria","w":["Prefetto","Comitato dei visitatori"],"e":"L'art. 90 attribuisce la designazione dei coordinatori al committente o al responsabile dei lavori."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 69 del D.Lgs. n. 81/2008, si intende per attrezzatura di lavoro:","a":"Qualsiasi macchina, apparecchio, utensile o impianto destinato a essere usato durante il lavoro","t":"Il solo abbigliamento da lavoro fornito al dipendente, comprese le divise e le calzature prive di funzione protettiva","w":["La retribuzione accessoria del dipendente","Il registro delle presenze"],"e":"L'abbigliamento da lavoro non è di per sé un'attrezzatura né un DPI, salvo che abbia specifiche funzioni protettive."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"In base ai requisiti dei luoghi di lavoro (Allegato IV del D.Lgs. n. 81/2008), le porte delle uscite di emergenza devono, di norma:","a":"Essere apribili nel verso dell'esodo","t":"Aprirsi verso l'interno, per non ingombrare l'esterno","w":["Restare chiuse a chiave durante l'apertura al pubblico","Essere di tipo girevole su asse centrale"],"e":"Le porte delle uscite di emergenza si aprono nel verso dell'esodo e devono essere facilmente apribili da chiunque in caso di emergenza."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"La valutazione dei rischi prevista dall'art. 28 del D.Lgs. n. 81/2008 deve riguardare anche:","a":"I rischi collegati allo stress lavoro-correlato","t":"Esclusivamente i rischi derivanti da macchinari e impianti","w":["Le preferenze alimentari dei lavoratori","Il gradimento delle mostre da parte dei visitatori"],"e":"L'art. 28 include espressamente lo stress lavoro-correlato e i rischi legati a differenze di genere, età e provenienza."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Ai sensi dell'art. 37 del D.Lgs. n. 81/2008, la formazione dei lavoratori in materia di salute e sicurezza:","a":"Avviene durante l'orario di lavoro e senza oneri economici per i lavoratori","t":"Si svolge al di fuori dell'orario di lavoro e i relativi costi sono a carico del lavoratore","w":["È facoltativa per i dipendenti pubblici","Si effettua solo al momento del pensionamento"],"e":"Il comma 12 prevede che la formazione si svolga in orario di lavoro e non comporti costi per i lavoratori."},
+{"c":"specifiche","m":"Sicurezza sul lavoro","q":"Nel D.Lgs. n. 81/2008, i lavoratori incaricati dell'attuazione delle misure di prevenzione incendi, evacuazione e primo soccorso sono designati da:","a":"Datore di lavoro","t":"Rappresentante dei lavoratori per la sicurezza","w":["Comando dei Carabinieri","Visitatori presenti in quel momento"],"e":"La designazione degli addetti alle emergenze è un obbligo del datore di lavoro (art. 18), delegabile a differenza di quelli dell'art. 17."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nel marketing mix classico (modello delle 4P di McCarthy), le leve sono:","a":"Product, Price, Place, Promotion","t":"People, Process, Physical evidence, Product","w":["Planning, Printing, Posting, Publishing","Profit, Payroll, Partnership, Patent"],"e":"People, Process e Physical evidence sono le tre P aggiuntive del marketing dei servizi."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nel marketing dei servizi (modello delle 7P), alle 4P tradizionali si aggiungono:","a":"People, Process, Physical evidence","t":"Public relations, Packaging, Positioning","w":["Privacy, Password, PEC","Pittura, Poesia, Prosa"],"e":"Nei servizi culturali contano le persone che erogano il servizio, i processi e l'evidenza fisica (spazi, segnaletica, materiali)."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nell'analisi SWOT, le lettere O e T si riferiscono a:","a":"Opportunità e minacce provenienti dall'ambiente esterno","t":"Obiettivi e tempi del piano di comunicazione","w":["Organigramma e tariffe","Orari e turni del personale"],"e":"S e W (punti di forza e di debolezza) riguardano l'ambiente interno; O e T (Opportunities, Threats) quello esterno."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"La suddivisione del pubblico potenziale in gruppi omogenei per caratteristiche, bisogni o comportamenti si definisce:","a":"Segmentazione","t":"Posizionamento","w":["Ammortamento","Protocollazione"],"e":"Dopo la segmentazione si sceglie il target (targeting) e si definisce il posizionamento."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nel marketing, il posizionamento è:","a":"Il modo in cui un'offerta intende essere percepita dal pubblico rispetto ai concorrenti","t":"La collocazione fisica dei cartelli informativi e della segnaletica lungo il percorso di visita","w":["Il calcolo delle imposte dovute dall'ente","La classifica dei dipendenti per anzianità"],"e":"Il posizionamento riguarda lo spazio occupato nella mente del pubblico."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Il modello AIDA descrive le fasi:","a":"Attenzione, Interesse, Desiderio, Azione","t":"Analisi, Ideazione, Diffusione, Archiviazione","w":["Accesso, Identificazione, Download, Avvio","Acquisto, Inventario, Deposito, Ammortamento"],"e":"AIDA descrive il percorso con cui un messaggio porta il destinatario dall'attenzione all'azione."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"In ambito culturale, con l'espressione «audience development» si intende:","a":"L'insieme delle strategie per ampliare, diversificare e fidelizzare il pubblico","t":"La sola vendita di abbonamenti e card a prezzo scontato","w":["La manutenzione degli impianti audio delle sale","Il controllo degli accessi con metal detector"],"e":"Le politiche tariffarie possono essere uno strumento, ma l'audience development riguarda l'intera relazione con pubblici vecchi e nuovi."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"La legge n. 150/2000 disciplina le attività di informazione e comunicazione delle pubbliche amministrazioni e prevede, tra le strutture dedicate:","a":"L'Ufficio relazioni con il pubblico, l'ufficio stampa e il portavoce","t":"L'Ufficio per i procedimenti disciplinari e il Comitato unico di garanzia","w":["Il servizio di guardaroba e la caffetteria","La Corte dei conti e il Consiglio di Stato"],"e":"L'URP cura i rapporti con i cittadini; l'ufficio stampa i rapporti con i media; il portavoce supporta l'organo di vertice."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Un'indagine di customer satisfaction misura:","a":"Il grado di soddisfazione dei fruitori rispetto alle aspettative sul servizio","t":"Il numero totale di biglietti venduti in un anno","w":["Il livello di umidità relativa e la temperatura delle sale in cui sono esposte le opere","La durata media dei contratti del personale"],"e":"Il numero di biglietti è un dato quantitativo di affluenza, che non dice nulla sulla qualità percepita."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nel monitoraggio di una campagna sui social media, il tasso di engagement misura:","a":"Il livello di interazione degli utenti con i contenuti (reazioni, commenti, condivisioni)","t":"Il numero complessivo di persone che hanno visualizzato almeno una volta il contenuto pubblicato","w":["Il costo di stampa dei manifesti","Il numero di addetti alla biglietteria"],"e":"Il numero di persone raggiunte è la copertura (reach)."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nel modello della comunicazione, il feedback è:","a":"La risposta del ricevente, che consente all'emittente di verificare l'esito del messaggio","t":"Il disturbo che altera il messaggio durante la trasmissione","w":["Il supporto cartaceo su cui è stampato il messaggio","La firma digitale apposta al messaggio"],"e":"Il disturbo che altera il messaggio è il rumore."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nei luoghi della cultura, la Carta dei servizi:","a":"Individua gli standard di qualità dei servizi offerti e le forme di tutela degli utenti","t":"Elenca i nominativi, le qualifiche e le retribuzioni di tutti i dipendenti della struttura","w":["Sostituisce il biglietto d'ingresso","È il catalogo delle opere in vendita"],"e":"L'art. 32 del D.Lgs. n. 33/2013 impone la pubblicazione della carta dei servizi o del documento sugli standard di qualità."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Il passaparola (word of mouth) è:","a":"La diffusione spontanea di opinioni e raccomandazioni tra le persone","t":"Una campagna pubblicitaria a pagamento sui media tradizionali","w":["Un sistema di audioguide multilingue","La lettura ad alta voce delle didascalie"],"e":"Il passaparola, anche digitale (recensioni, condivisioni), è tra le leve più credibili per i servizi culturali."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Con «brand awareness» si indica:","a":"Il grado di notorietà di un marchio presso il pubblico","t":"Il valore economico del marchio, così come iscritto nel bilancio dell'ente","w":["Il registro delle presenze dei visitatori","La certificazione energetica dell'edificio"],"e":"Il valore complessivo del marchio è più vicino al concetto di brand equity."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Il target di una campagna di comunicazione è:","a":"Il pubblico di riferimento a cui il messaggio è destinato","t":"Il budget complessivo stanziato per la campagna","w":["Il logo dell'istituto culturale","Il calendario delle chiusure festive"],"e":"Definire il target orienta scelta dei canali, linguaggio e contenuti."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Una comunicazione museale progettata secondo il principio del design for all:","a":"È fruibile dal maggior numero di persone, incluse quelle con disabilità","t":"È riservata esclusivamente ai visitatori in possesso di una certificazione di disabilità","w":["Usa soltanto testi in lingua latina","Esclude qualsiasi contenuto digitale"],"e":"Il design for all mira a soluzioni utilizzabili da tutti, senza percorsi separati."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Il benchmarking è:","a":"Il confronto sistematico delle proprie prestazioni con quelle delle organizzazioni migliori","t":"La valutazione periodica della performance individuale dei dipendenti da parte del dirigente","w":["La disposizione delle panchine lungo il percorso espositivo","L'inventario dei beni mobili dell'ufficio"],"e":"Serve a individuare buone pratiche da adattare alla propria realtà."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nella comunicazione di un istituto culturale, lo storytelling consiste:","a":"Nel raccontare opere, luoghi e collezioni attraverso narrazioni coinvolgenti","t":"Nella pubblicazione integrale degli atti amministrativi dell'istituto","w":["Nella vendita di libri usati all'ingresso","Nell'archiviazione cronologica della corrispondenza"],"e":"Lo storytelling usa la narrazione per creare connessione emotiva e facilitare la comprensione dei contenuti."},
+{"c":"specifiche","m":"Marketing e comunicazione","q":"Nel piano di comunicazione di un museo, la comunicazione interna è rivolta principalmente:","a":"Al personale e ai collaboratori dell'istituto","t":"Ai visitatori già presenti nelle sale","w":["Ai concorrenti diretti","Alle autorità giudiziarie"],"e":"La comunicazione interna favorisce coordinamento, condivisione delle informazioni e senso di appartenenza."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Il fondamento costituzionale della tutela del paesaggio e del patrimonio storico e artistico della Nazione è contenuto nell'articolo:","a":"9 della Costituzione","t":"117 della Costituzione","w":["48 della Costituzione","75 della Costituzione"],"e":"L'art. 9 Cost. affida alla Repubblica la tutela; l'art. 117 ripartisce le competenze legislative tra Stato e Regioni (tutela allo Stato, valorizzazione concorrente)."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 2 del D.Lgs. n. 42/2004, il patrimonio culturale è costituito:","a":"Dai beni culturali e dai beni paesaggistici","t":"Dai soli beni culturali di proprietà dello Stato","w":["Dalle opere d'arte di autore vivente","Dalle sole biblioteche e dagli archivi"],"e":"L'art. 2, comma 1, comprende sia i beni culturali sia i beni paesaggistici."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 3 del Codice dei beni culturali, la tutela consiste nell'esercizio delle funzioni e nella disciplina delle attività dirette:","a":"A individuare i beni del patrimonio culturale e a garantirne protezione e conservazione per fini di pubblica fruizione","t":"A promuovere la conoscenza del patrimonio e ad assicurare le migliori condizioni di utilizzazione e fruizione pubblica","w":["A massimizzare gli introiti derivanti dalla vendita dei biglietti","A trasferire ai privati la proprietà dei beni non esposti"],"e":"La seconda opzione riprende la definizione di valorizzazione (art. 6)."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 6 del Codice dei beni culturali, la valorizzazione è attuata:","a":"In forme compatibili con la tutela e tali da non pregiudicarne le esigenze","t":"Con priorità sulla tutela, ogni volta che le iniziative generano entrate per lo Stato","w":["Esclusivamente da soggetti privati","Solo nei musei con oltre un milione di visitatori"],"e":"La valorizzazione non può mai prevalere sulle esigenze di tutela."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 29 del Codice dei beni culturali, la conservazione del patrimonio è assicurata mediante una coerente, coordinata e programmata attività di:","a":"Studio, prevenzione, manutenzione e restauro","t":"Catalogazione, prestito, alienazione e restauro","w":["Promozione, pubblicità, sponsorizzazione e marketing","Vigilanza armata, sorveglianza notturna e custodia"],"e":"Le quattro attività indicate dalla norma sono studio, prevenzione, manutenzione e restauro."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 101 del Codice dei beni culturali, sono istituti e luoghi della cultura:","a":"Musei, biblioteche, archivi, aree e parchi archeologici, complessi monumentali","t":"Musei, teatri, cinema e sale da concerto","w":["Scuole e università statali","Sedi delle Prefetture"],"e":"Teatri e cinema rientrano nello spettacolo, non nell'elenco dell'art. 101."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 101 del Codice dei beni culturali, il museo è:","a":"Una struttura permanente che acquisisce, cataloga, conserva, ordina ed espone beni culturali per finalità di educazione e di studio","t":"Una struttura temporanea che organizza mostre a pagamento con finalità prevalentemente commerciali e di intrattenimento per il pubblico","w":["Un ufficio periferico che rilascia autorizzazioni paesaggistiche","Un deposito di beni sequestrati"],"e":"È la definizione dell'art. 101, comma 2, lett. a)."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 103 del Codice dei beni culturali, l'accesso alle biblioteche e agli archivi pubblici per finalità di lettura, studio e ricerca è:","a":"Gratuito","t":"A pagamento, salvo i casi di esenzione stabiliti dal Ministero","w":["Riservato ai cittadini italiani","Consentito ai soli docenti universitari"],"e":"Per gli altri istituti e luoghi pubblici della cultura l'accesso può essere gratuito o a pagamento (art. 103, comma 1)."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Quale tra i seguenti rientra tra i servizi per il pubblico previsti dall'art. 117 del Codice dei beni culturali?","a":"Caffetteria, ristorazione e guardaroba","t":"Restauro delle opere conservate nei depositi","w":["Rilascio della carta d'identità elettronica","Riscossione dei tributi locali"],"e":"L'art. 117 elenca servizi di assistenza culturale e di ospitalità: editoria, bookshop, accoglienza, visite guidate, caffetteria, guardaroba, organizzazione di mostre."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 90 del Codice dei beni culturali, chi scopre fortuitamente cose immobili o mobili di interesse culturale ne fa denuncia:","a":"Entro ventiquattro ore, al soprintendente o al sindaco ovvero all'autorità di pubblica sicurezza","t":"Entro trenta giorni, esclusivamente al soprintendente competente per territorio, con relazione tecnica","w":["Entro un anno, al Ministero dell'economia","Quando lo ritiene opportuno, essendo facoltativa"],"e":"Lo scopritore deve anche provvedere alla conservazione temporanea, lasciando le cose nel luogo e nelle condizioni del rinvenimento."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 91 del Codice dei beni culturali, le cose di interesse culturale ritrovate nel sottosuolo o sui fondali marini appartengono:","a":"Allo Stato","t":"Al proprietario del fondo in cui sono state rinvenute","w":["Allo scopritore, che può venderle","All'Unione europea"],"e":"Fanno parte del demanio o del patrimonio indisponibile; allo scopritore e al proprietario può spettare un premio (art. 92)."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 59 del Codice dei beni culturali, gli atti che trasferiscono la proprietà o la detenzione di beni culturali sono denunciati al Ministero entro:","a":"Trenta giorni","t":"Sessanta giorni","w":["Cinque anni","Ventiquattro ore"],"e":"Sessanta giorni è invece il termine entro cui il Ministero può esercitare la prelazione (art. 61)."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 61 del Codice dei beni culturali, la prelazione sui beni culturali alienati a titolo oneroso è esercitata nel termine di:","a":"Sessanta giorni dalla ricezione della denuncia","t":"Trenta giorni dalla ricezione della denuncia","w":["Dieci anni dalla stipula","Un giorno dalla stipula"],"e":"Se la denuncia è omessa, tardiva o incompleta, il termine diventa di centottanta giorni."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 20 del Codice dei beni culturali, i beni culturali:","a":"Non possono essere distrutti, deteriorati, danneggiati o adibiti a usi incompatibili con il loro carattere","t":"Possono essere adibiti a qualsiasi uso, purché autorizzato dal Comune","w":["Possono essere distrutti se privi di valore commerciale","Possono essere smembrati se appartengono ad archivi pubblici"],"e":"Il comma 2 vieta inoltre lo smembramento degli archivi pubblici e degli archivi privati dichiarati."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 21 del Codice dei beni culturali, lo spostamento, anche temporaneo, dei beni culturali mobili è subordinato, salvo le eccezioni previste:","a":"All'autorizzazione del Ministero","t":"Alla sola comunicazione al Comune","w":["A nessuna formalità","Al parere dell'ANAC"],"e":"Sono soggetti ad autorizzazione anche rimozione, demolizione, smembramento di collezioni e scarto di documenti d'archivio."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 54 del Codice dei beni culturali, sono inalienabili, tra gli altri:","a":"Le raccolte di musei, pinacoteche, gallerie e biblioteche","t":"Tutti gli immobili privati dichiarati di interesse culturale","w":["I veicoli di servizio del Ministero","Le opere d'arte contemporanea di proprietà privata"],"e":"Sono inalienabili anche immobili e aree di interesse archeologico, monumenti nazionali e archivi."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 12 del Codice dei beni culturali, le cose appartenenti a enti pubblici, opera di autore non più vivente e la cui esecuzione risalga a oltre ___ anni, sono sottoposte a tutela fino alla verifica dell'interesse culturale.","a":"Settanta","t":"Cinquanta","w":["Cinque","Duecento"],"e":"Il termine vigente è di settanta anni. Alcune edizioni non aggiornate del Codice, compresa quella caricata nel progetto, riportano ancora cinquanta anni."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 142 del Codice dei beni culturali, sono comunque di interesse paesaggistico i territori costieri compresi in una fascia della profondità di:","a":"300 metri dalla linea di battigia","t":"150 metri dalla linea di battigia","w":["10 chilometri dalla linea di battigia","5 metri dalla linea di battigia"],"e":"La fascia di 150 metri riguarda le sponde di fiumi, torrenti e corsi d'acqua."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 142 del Codice dei beni culturali, sono tutelate per legge le montagne della catena alpina per la parte eccedente:","a":"1.600 metri sul livello del mare","t":"1.200 metri sul livello del mare","w":["300 metri sul livello del mare","4.000 metri sul livello del mare"],"e":"1.200 metri è la soglia prevista per la catena appenninica e per le isole."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 1 del Codice dei beni culturali, i privati proprietari, possessori o detentori di beni appartenenti al patrimonio culturale:","a":"Sono tenuti a garantirne la conservazione","t":"Sono tenuti a garantirne in ogni caso la fruizione pubblica gratuita","w":["Non hanno alcun obbligo","Devono cederli allo Stato entro un anno"],"e":"È l'art. 1, comma 5. Gli obblighi di fruizione pubblica riguardano essenzialmente i beni di appartenenza pubblica."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 10 del Codice, sono beni culturali le cose immobili e mobili appartenenti allo Stato, alle regioni e agli altri enti pubblici che presentano interesse:","a":"Artistico, storico, archeologico o etnoantropologico","t":"Esclusivamente artistico, purché certificato da un critico d'arte","w":["Commerciale o turistico-alberghiero","Sportivo o ricreativo"],"e":"Sono questi i quattro interessi indicati dall'art. 10, comma 1."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Per i beni di proprietà di privati (persone fisiche o società), la qualifica di bene culturale deriva, di regola:","a":"Dalla dichiarazione dell'interesse culturale (art. 13 del Codice)","t":"Dalla semplice iscrizione del bene nel catasto urbano o nel registro dei beni mobili","w":["Dall'acquisto del bene in un'asta pubblica","Dal parere del sindaco del Comune di residenza"],"e":"La dichiarazione accerta l'interesse culturale particolarmente importante ed è notificata al proprietario."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Avverso la dichiarazione dell'interesse culturale, l'art. 16 del Codice ammette ricorso al Ministero, per motivi di legittimità e di merito, entro:","a":"Trenta giorni dalla notifica della dichiarazione","t":"Sessanta giorni dalla pubblicazione in Gazzetta Ufficiale","w":["Dieci anni dalla notifica","Nessun termine"],"e":"La proposizione del ricorso sospende gli effetti del provvedimento impugnato, ferme le misure cautelari."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"La legge n. 22/2022 ha collocato i delitti contro il patrimonio culturale:","a":"Nel codice penale, Titolo VIII-bis del Libro II (artt. 518-bis e seguenti)","t":"Esclusivamente nella Parte IV del Codice dei beni culturali","w":["Nel Codice della strada","Nel D.Lgs. n. 81/2008"],"e":"La riforma ha portato nel codice penale fattispecie come furto, ricettazione, danneggiamento e imbrattamento di beni culturali."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Il visitatore che imbratta un dipinto esposto in un museo statale commette il delitto previsto dall'art.:","a":"518-duodecies c.p.","t":"639 c.p., che si applica in ogni caso","w":["314 c.p.","640 c.p."],"e":"L'art. 518-duodecies punisce distruzione, deterioramento, deturpamento, imbrattamento e uso illecito di beni culturali o paesaggistici; l'art. 639 è la norma generale sulle cose altrui."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Chi si impossessa di un bene culturale mobile altrui, sottraendolo a chi lo detiene, al fine di trarne profitto, commette:","a":"Furto di beni culturali (art. 518-bis c.p.)","t":"Appropriazione indebita (art. 646 c.p.)","w":["Peculato d'uso","Rifiuto di atti d'ufficio"],"e":"L'appropriazione indebita presuppone che l'agente abbia già il possesso del bene; per i beni culturali esiste comunque l'autonoma fattispecie dell'art. 518-ter."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"La Convenzione UNESCO per la protezione del patrimonio mondiale culturale e naturale è stata adottata a Parigi nel:","a":"1972","t":"1954","w":["1861","2020"],"e":"Il 1954 è l'anno della Convenzione dell'Aja per la protezione dei beni culturali in caso di conflitto armato."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"La Convenzione quadro del Consiglio d'Europa sul valore del patrimonio culturale per la società è nota come Convenzione di:","a":"Faro","t":"Firenze","w":["Kyoto","Montréal"],"e":"A Firenze (2000) è stata adottata la Convenzione europea del paesaggio. La Convenzione di Faro (2005) è stata ratificata dall'Italia con la legge n. 133/2020."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"La Convenzione UNESCO per la salvaguardia del patrimonio culturale immateriale è stata adottata nel:","a":"2003","t":"1972","w":["1815","1990"],"e":"Il 1972 è l'anno della Convenzione sul patrimonio mondiale culturale e naturale."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"L'Opificio delle pietre dure, istituto del Ministero specializzato nel restauro, ha sede a:","a":"Firenze","t":"Roma","w":["Bari","Trento"],"e":"A Roma ha sede l'Istituto centrale per il restauro."},
+{"c":"specifiche","m":"Patrimonio culturale","q":"Ai sensi dell'art. 101 del Codice, il «parco archeologico» è:","a":"Un ambito territoriale con importanti evidenze archeologiche e valori storici, paesaggistici o ambientali, attrezzato come museo all'aperto","t":"Un sito caratterizzato dalla presenza di resti di natura fossile o di manufatti preistorici o di età antica, senza ulteriori requisiti di tipo paesaggistico","w":["Un giardino pubblico con giochi per bambini","Un'area di parcheggio riservata ai pullman turistici"],"e":"La seconda opzione riprende la definizione di «area archeologica»: il parco richiede anche la compresenza di valori storici, paesaggistici o ambientali e l'attrezzatura come museo all'aperto."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Ai sensi del D.P.C.M. 15 marzo 2024, n. 57, l'amministrazione centrale del Ministero della cultura è articolata in:","a":"Quattro dipartimenti","t":"Un Segretariato generale e direzioni generali, senza dipartimenti","w":["Venti dipartimenti regionali","Due soli uffici centrali"],"e":"Il D.P.C.M. n. 57/2024 ha superato il modello del Segretariato generale previsto dal precedente regolamento (D.P.C.M. n. 169/2019)."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Quale tra i seguenti NON è un dipartimento del Ministero della cultura previsto dal D.P.C.M. n. 57/2024?","a":"Dipartimento per il turismo e lo spettacolo dal vivo","t":"Dipartimento per le attività culturali","w":["Dipartimento per l'amministrazione generale","Dipartimento per la tutela del patrimonio culturale"],"e":"I dipartimenti sono: amministrazione generale (DiAG), tutela (DiT), valorizzazione (DiVa), attività culturali (DiAC). Il turismo non è più materia del Ministero dal 2021."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Nell'organizzazione del Ministero della cultura, la Direzione generale Musei è incardinata nel:","a":"Dipartimento per la valorizzazione del patrimonio culturale","t":"Dipartimento per la tutela del patrimonio culturale","w":["Ministero dell'economia e delle finanze","Dipartimento della protezione civile"],"e":"Nel DiVa rientrano la Direzione generale Musei e i musei e parchi archeologici dotati di autonomia speciale."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Nell'organizzazione del Ministero della cultura, la Direzione generale Archeologia, belle arti e paesaggio afferisce al:","a":"Dipartimento per la tutela del patrimonio culturale","t":"Dipartimento per la valorizzazione del patrimonio culturale","w":["Ministero dell'interno","Dipartimento per l'amministrazione generale"],"e":"Al DiT afferiscono le Direzioni generali Archeologia, belle arti e paesaggio e Archivi, oltre alla Soprintendenza speciale di Roma."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Quale tra le seguenti direzioni generali fa parte del Dipartimento per l'amministrazione generale (DiAG)?","a":"Direzione generale Risorse umane e organizzazione","t":"Direzione generale Musei","w":["Direzione generale delle Dogane","Direzione generale della Motorizzazione"],"e":"Il DiAG comprende le DG Risorse umane e organizzazione; Bilancio, programmazione e monitoraggio; Affari europei e internazionali; Digitalizzazione e comunicazione."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"La Direzione generale Biblioteche e istituti culturali afferisce al:","a":"Dipartimento per le attività culturali","t":"Dipartimento per la tutela del patrimonio culturale","w":["Ministero dell'istruzione e del merito","Ministero della salute"],"e":"Il DiAC comprende le DG Spettacolo; Cinema e audiovisivo; Creatività contemporanea; Biblioteche e istituti culturali."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Sono uffici periferici del Ministero della cultura, tra gli altri:","a":"Le Soprintendenze Archeologia, belle arti e paesaggio e gli Archivi di Stato","t":"Le Prefetture-Uffici territoriali del Governo","w":["Le Camere di commercio","Gli Uffici scolastici regionali"],"e":"Tra gli uffici periferici figurano anche le Direzioni regionali Musei nazionali, le Soprintendenze archivistiche e bibliografiche e le biblioteche pubbliche statali. Le Prefetture dipendono dal Ministero dell'interno."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Nell'articolazione periferica del Ministero della cultura, le strutture che organizzano i musei e i luoghi della cultura statali non dotati di autonomia speciale sono:","a":"Le Direzioni regionali Musei nazionali","t":"Le Soprintendenze archivistiche e bibliografiche","w":["Le Aziende sanitarie locali","Le Questure"],"e":"Le Soprintendenze archivistiche e bibliografiche vigilano su archivi e beni librari, non sui musei."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Il Ministero ha assunto la denominazione di «Ministero della cultura» per effetto del:","a":"D.L. n. 22/2021","t":"D.Lgs. n. 42/2004","w":["D.Lgs. n. 81/2008","Legge n. 241/1990"],"e":"Il D.L. 1° marzo 2021, n. 22, ha ridenominato il Ministero e trasferito le competenze sul turismo a un dicastero autonomo."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Il Ministero per i beni culturali e ambientali fu istituito tra il 1974 e il 1975 su iniziativa di:","a":"Giovanni Spadolini","t":"Walter Veltroni","w":["Camillo Benso di Cavour","Enrico Fermi"],"e":"Veltroni fu ministro quando, nel 1998, nacque il Ministero per i beni e le attività culturali."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Quale tra i seguenti è un ufficio di diretta collaborazione del Ministro della cultura?","a":"Ufficio di Gabinetto","t":"Direzione generale Bilancio, programmazione e monitoraggio","w":["Tribunale amministrativo regionale","Ufficio del giudice di pace"],"e":"Gli uffici di diretta collaborazione (Gabinetto, Ufficio legislativo, Segreteria del Ministro, Ufficio stampa e altri) supportano l'organo politico; le direzioni generali sono uffici dell'amministrazione."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Il D.P.C.M. n. 57/2024 reca il regolamento di organizzazione del Ministero della cultura, degli uffici di diretta collaborazione del Ministro e:","a":"Dell'Organismo indipendente di valutazione della performance","t":"Dell'Autorità nazionale anticorruzione e dei suoi uffici territoriali","w":["Della Corte dei conti","Del Consiglio di Stato"],"e":"È il titolo stesso del regolamento. ANAC, Corte dei conti e Consiglio di Stato sono organismi esterni al Ministero."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"Nel Dipartimento per la valorizzazione del patrimonio culturale rientrano, oltre alla Direzione generale Musei:","a":"Musei e parchi archeologici dotati di autonomia speciale","t":"Le Soprintendenze archivistiche e bibliografiche e gli Archivi di Stato","w":["Le università statali","Le Regioni a statuto speciale"],"e":"Il D.P.C.M. n. 57/2024 colloca nel DiVa la DG Musei e una serie di istituti dotati di autonomia speciale."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"La Soprintendenza speciale Archeologia, belle arti e paesaggio di Roma è collocata nell'ambito del:","a":"Dipartimento per la tutela del patrimonio culturale","t":"Dipartimento per la valorizzazione del patrimonio culturale","w":["Comune di Roma","Ministero degli affari esteri"],"e":"Nel DiT, accanto alle DG Archeologia, belle arti e paesaggio e Archivi."},
+{"c":"specifiche","m":"Organizzazione del MiC","q":"L'Istituto centrale per il catalogo e la documentazione (ICCD) svolge funzioni in materia di:","a":"Catalogazione e documentazione del patrimonio culturale","t":"Restauro delle opere d'arte su carta e dei documenti grafici","w":["Riscossione dei biglietti d'ingresso","Formazione del personale di polizia"],"e":"La catalogazione è funzione centrale della tutela (art. 17 del Codice dei beni culturali)."},
+
+// ===== CAPACITÀ LOGICO-DEDUTTIVA E CRITICO-VERBALE =====
+{"c":"logica","m":"Serie numeriche","q":"Quale numero completa la serie: 3, 6, 12, 24, ?","a":"48","t":"36","w":["27","50"],"e":"Ogni termine è il doppio del precedente: 24 × 2 = 48. Il 36 deriva dall'errore di sommare 12."},
+{"c":"logica","m":"Serie numeriche","q":"Quale numero completa la serie: 2, 5, 10, 17, 26, ?","a":"37","t":"35","w":["52","30"],"e":"Le differenze crescono di 2 (3, 5, 7, 9, 11): 26 + 11 = 37. Il 35 ripete la differenza 9."},
+{"c":"logica","m":"Serie numeriche","q":"Quale numero completa la serie: 7, 14, 11, 22, 19, ?","a":"38","t":"16","w":["41","57"],"e":"Si alternano × 2 e − 3: 19 × 2 = 38. Il 16 applica di nuovo la sottrazione."},
+{"c":"logica","m":"Serie numeriche","q":"Quale numero completa la serie: 1, 1, 2, 3, 5, 8, ?","a":"13","t":"11","w":["16","21"],"e":"Ogni termine è la somma dei due precedenti (successione di Fibonacci): 5 + 8 = 13."},
+{"c":"logica","m":"Serie alfabetiche","q":"Nell'alfabeto italiano completo (26 lettere), quale lettera completa la serie: A, C, F, J, ?","a":"O","t":"N","w":["B","Z"],"e":"Gli intervalli crescono di uno (+2, +3, +4, +5): J è la 10ª lettera, 10 + 5 = 15, cioè O."},
+{"c":"logica","m":"Sillogismi","q":"«Tutti i custodi del museo hanno seguito il corso antincendio. Marco non ha seguito il corso antincendio.» Quale conclusione è corretta?","a":"Marco non è un custode del museo","t":"Tutti coloro che hanno seguito il corso antincendio sono custodi","w":["Marco è il direttore del museo","Nessun custode ha seguito il corso"],"e":"Se essere custode implica aver seguito il corso, chi non lo ha seguito non è custode. La seconda opzione inverte indebitamente la relazione."},
+{"c":"logica","m":"Sillogismi","q":"«Alcuni archivisti sono fotografi. Tutti i fotografi sono creativi.» Quale conclusione è certamente vera?","a":"Alcuni archivisti sono creativi","t":"Tutti gli archivisti sono creativi","w":["Nessun fotografo è archivista","Tutti i creativi sono archivisti"],"e":"Gli archivisti che sono fotografi sono anche creativi; nulla si può dire degli altri archivisti."},
+{"c":"logica","m":"Logica proposizionale","q":"Qual è la negazione logica della frase «Tutti i visitatori hanno pagato il biglietto»?","a":"Almeno un visitatore non ha pagato il biglietto","t":"Nessun visitatore ha pagato il biglietto","w":["Tutti i visitatori hanno il biglietto ridotto","Il biglietto è gratuito per tutti"],"e":"Per negare un'affermazione universale basta un controesempio."},
+{"c":"logica","m":"Logica proposizionale","q":"«Se piove, la visita al giardino viene annullata.» La visita al giardino non è stata annullata. Quindi:","a":"Non è piovuto","t":"Potrebbe essere piovuto","w":["La visita si è svolta al chiuso","Domani pioverà"],"e":"Se A implica B e B è falso, anche A è falso (modus tollens)."},
+{"c":"logica","m":"Logica proposizionale","q":"«Se un visitatore ha meno di 18 anni, entra gratis.» Luca è entrato gratis. Quindi:","a":"Non si può stabilire con certezza se Luca abbia meno di 18 anni","t":"Luca ha certamente meno di 18 anni","w":["Luca ha più di 65 anni","Luca ha pagato il biglietto intero"],"e":"L'ingresso gratuito può avere altre cause: affermare il conseguente è un errore logico."},
+{"c":"logica","m":"Calcolo","q":"Un biglietto da 20 euro viene aumentato del 10% e poi scontato del 10%. Il prezzo finale è:","a":"19,80 euro","t":"20,00 euro","w":["2,00 euro","30,00 euro"],"e":"20 × 1,10 = 22; 22 × 0,90 = 19,80. Lo sconto si calcola su una base più alta e non annulla l'aumento."},
+{"c":"logica","m":"Calcolo","q":"In una sala ci sono 48 visitatori e il rapporto tra adulti e bambini è di 5 a 3. Quanti sono i bambini?","a":"18","t":"30","w":["8","45"],"e":"48 diviso 8 parti = 6; i bambini sono 3 parti, cioè 18. 30 è il numero degli adulti."},
+{"c":"logica","m":"Calcolo","q":"Un turno di vigilanza inizia alle 8:45 e dura 6 ore e 40 minuti. A che ora termina?","a":"15:25","t":"14:25","w":["12:05","16:45"],"e":"8:45 + 6 h = 14:45; + 40 minuti = 15:25."},
+{"c":"logica","m":"Calcolo","q":"Se il 3 marzo è un martedì, che giorno della settimana sarà il 24 marzo dello stesso anno?","a":"Martedì","t":"Mercoledì","w":["Venerdì","Domenica"],"e":"Tra il 3 e il 24 passano 21 giorni, cioè esattamente tre settimane."},
+{"c":"logica","m":"Calcolo","q":"Due addetti impiegano 6 ore per inventariare un deposito. Lavorando allo stesso ritmo, quante ore impiegherebbero 3 addetti?","a":"4 ore","t":"9 ore","w":["18 ore","1 ora"],"e":"Il lavoro totale è 12 ore-uomo: 12 / 3 = 4. La proporzionalità è inversa, non diretta."},
+{"c":"logica","m":"Calcolo","q":"Un museo ha 4 sale con 12 opere ciascuna. Un terzo delle opere della sola sala 2 è in restauro. Quante opere sono visibili in totale?","a":"44","t":"32","w":["52","12"],"e":"48 opere totali; nella sala 2 ne mancano 12 / 3 = 4. 32 si ottiene togliendo un terzo di tutte le opere."},
+{"c":"logica","m":"Calcolo","q":"In un'urna ci sono 3 gettoni rossi e 5 gettoni blu. Estraendone uno a caso, la probabilità che sia rosso è:","a":"3/8","t":"3/5","w":["5/3","8/3"],"e":"Casi favorevoli (3) sui casi possibili (8). 3/5 è il rapporto tra rossi e blu, non una probabilità."},
+{"c":"logica","m":"Analogie verbali","q":"Completare la proporzione: biblioteca : libri = pinacoteca : ?","a":"Dipinti","t":"Sculture","w":["Automobili","Medicinali"],"e":"La pinacoteca raccoglie dipinti; le sculture sono conservate in una gliptoteca."},
+{"c":"logica","m":"Analogie verbali","q":"Completare la proporzione: medico : diagnosi = giudice : ?","a":"Sentenza","t":"Tribunale","w":["Bisturi","Sinfonia"],"e":"La relazione è tra professionista e atto conclusivo della sua valutazione, non tra professionista e luogo di lavoro."},
+{"c":"logica","m":"Ragionamento verbale","q":"Individuare il termine da scartare: affresco, tempera, sonetto, olio su tela.","a":"Sonetto","t":"Affresco","w":["Tempera","Olio su tela"],"e":"Affresco, tempera e olio sono tecniche pittoriche; il sonetto è una forma poetica."},
+{"c":"logica","m":"Ragionamento verbale","q":"Quale termine è sinonimo di «precipuo»?","a":"Principale","t":"Precipitoso","w":["Secondario","Trasparente"],"e":"«Precipuo» significa principale, essenziale. «Precipitoso» è un'assonanza ingannevole."},
+{"c":"logica","m":"Ragionamento verbale","q":"Quale termine è il contrario di «effimero»?","a":"Duraturo","t":"Passeggero","w":["Rumoroso","Colorato"],"e":"«Passeggero» è un sinonimo, non un contrario."},
+{"c":"logica","m":"Comprensione del testo","q":"«Il museo ha esteso l'orario serale del venerdì. Nei tre mesi successivi gli ingressi del venerdì sono aumentati del 30%, mentre quelli degli altri giorni sono rimasti invariati.» Quale affermazione è deducibile dal brano?","a":"Nei tre mesi successivi all'estensione gli ingressi del venerdì sono cresciuti","t":"L'estensione dell'orario è l'unica causa dell'aumento degli ingressi","w":["Gli ingressi settimanali complessivi sono diminuiti","Il museo ha ridotto l'orario degli altri giorni"],"e":"Il brano registra una crescita ma non attribuisce con certezza la causa: il nesso causale esclusivo non è deducibile."},
+{"c":"logica","m":"Comprensione del testo","q":"«Tutte le opere esposte nella sala A provengono da collezioni private. Alcune opere della sala A sono in prestito temporaneo.» Quale affermazione è certamente vera?","a":"Alcune opere in prestito temporaneo provengono da collezioni private","t":"Tutte le opere in prestito temporaneo si trovano nella sala A","w":["Nessuna opera della sala A è in prestito","Tutte le collezioni private sono esposte nella sala A"],"e":"Le opere in prestito della sala A provengono, come tutte le opere della sala, da collezioni private; nulla si sa delle opere in prestito delle altre sale."},
+{"c":"logica","m":"Comprensione del testo","q":"«Le visite guidate si svolgono solo se gli iscritti sono almeno dieci. Oggi la visita delle 11 si è svolta.» Quale affermazione è certamente vera?","a":"Alla visita delle 11 erano iscritte almeno dieci persone","t":"Alla visita delle 11 erano iscritte esattamente dieci persone","w":["Oggi non si sono svolte altre visite","La visita delle 11 era gratuita"],"e":"Dieci è la soglia minima: gli iscritti potevano essere anche di più."},
+
+// ===== QUESITI SITUAZIONALI (a = più efficace, t = neutra, w = meno efficaci) =====
+{"c":"situazionali","m":"Vigilanza","q":"Durante il turno di vigilanza nota un visitatore che si avvicina troppo a un dipinto e sta per toccarlo. Come si comporta?","a":"Lo invita con cortesia a mantenere la distanza, spiegandone il motivo","t":"Attende di vedere se il visitatore tocca davvero l'opera prima di intervenire","w":["Lo rimprovera ad alta voce davanti a tutti, così che anche gli altri visitatori imparino la regola","Finge di non vedere per evitare discussioni"],"e":"La prevenzione tempestiva e cortese tutela l'opera senza creare tensioni. Aspettare espone il bene a un rischio evitabile."},
+{"c":"situazionali","m":"Accoglienza","q":"Un visitatore protesta con toni accesi per la lunga attesa in biglietteria. Cosa fa?","a":"Lo ascolta con calma, si scusa per il disagio e lo informa su tempi di attesa e alternative","t":"Gli consegna il modulo per il reclamo scritto, senza aggiungere altro né entrare nel merito della protesta","w":["Gli risponde che la colpa è della direzione e che lei non può farci nulla","Lo invita ad andarsene se non vuole aspettare"],"e":"Ascolto, informazione e indicazione dei canali ufficiali riducono il conflitto e tutelano l'immagine dell'istituto."},
+{"c":"situazionali","m":"Vigilanza","q":"L'allarme di una teca inizia a suonare senza motivo apparente mentre la sala è affollata. Come agisce?","a":"Verifica la teca e l'opera, avvisa il responsabile della sicurezza e rassicura i visitatori","t":"Spegne l'allarme e riprende il giro, riservandosi di segnalarlo a fine turno","w":["Ignora l'allarme, ritenendolo un guasto","Ordina a voce alta l'evacuazione immediata dell'intero museo, chiedendo a tutti di correre verso l'uscita"],"e":"Ogni allarme va verificato e comunicato secondo le procedure, senza creare panico."},
+{"c":"situazionali","m":"Relazioni con i colleghi","q":"Un collega arriva spesso in ritardo al cambio turno, lasciando la sala senza cambio oltre il suo orario. Come si comporta?","a":"Ne parla prima con il collega e, se il problema persiste, informa il responsabile","t":"Segnala subito il collega al dirigente con una comunicazione scritta, senza prima parlarne con lui","w":["Comincia anche lei ad arrivare in ritardo per compensare","Lascia la sala incustodita allo scadere del suo orario"],"e":"Il confronto diretto è il primo passo; l'escalation al responsabile è appropriata se il problema non si risolve. Lasciare la sala scoperta mette a rischio le opere."},
+{"c":"situazionali","m":"Accoglienza","q":"Un visitatore con disabilità motoria chiede come raggiungere il piano superiore, ma l'ascensore è temporaneamente fuori servizio. Cosa fa?","a":"Si scusa, indica percorsi e contenuti accessibili e segnala il guasto per un intervento rapido","t":"Gli comunica che l'ascensore è guasto e gli suggerisce di tornare un altro giorno","w":["Gli propone di salire comunque le scale, facendosi aiutare da altri visitatori o dal personale presente in sala","Gli spiega che il museo non è tenuto a garantire l'accessibilità"],"e":"Occorre offrire alternative concrete e attivare la soluzione del problema, senza esporre la persona a rischi."},
+{"c":"situazionali","m":"Organizzazione del lavoro","q":"Il responsabile le affida la gestione del guardaroba, compito per cui non ha ricevuto formazione specifica. Come si comporta?","a":"Accetta, chiede indicazioni sulle procedure e si confronta con i colleghi più esperti","t":"Accetta e svolge il compito come ritiene meglio, senza chiedere nulla","w":["Rifiuta perché il compito non rientra nelle sue abitudini","Accetta l'incarico, ma tiene chiuso il guardaroba finché non avrà frequentato un corso di formazione specifico"],"e":"Disponibilità e richiesta di informazioni garantiscono un servizio corretto; improvvisare può generare errori."},
+{"c":"situazionali","m":"Vigilanza","q":"Durante una visita scolastica alcuni studenti corrono nelle sale e il docente accompagnatore non interviene. Cosa fa?","a":"Chiede con cortesia la collaborazione del docente, ricordando le regole di comportamento","t":"Richiama direttamente gli studenti a voce alta, senza coinvolgere il docente che li accompagna","w":["Allontana subito l'intera classe dal museo","Lascia correre, trattandosi di ragazzi"],"e":"Il docente è responsabile del gruppo: coinvolgerlo rende l'intervento più efficace e rispettoso dei ruoli."},
+{"c":"situazionali","m":"Vigilanza","q":"Un visitatore sta per scattare una foto con il flash in una sala in cui il flash è vietato. Come interviene?","a":"Gli spiega gentilmente che il flash danneggia le opere e che, se consentito, può fotografare senza","t":"Gli dice soltanto che è vietato, senza ulteriori spiegazioni","w":["Gli consente di usare il flash, a condizione che scatti in fretta e quando non ci sono altri visitatori vicini","Gli toglie il telefono dalle mani"],"e":"Spiegare le ragioni del divieto e offrire un'alternativa favorisce il rispetto spontaneo delle regole."},
+{"c":"situazionali","m":"Emergenze","q":"Nota del fumo provenire da un locale tecnico chiuso al pubblico. Come si comporta?","a":"Attiva subito la procedura di emergenza del piano, avvisando gli addetti antincendio","t":"Va da solo a controllare il locale prima di dare l'allarme","w":["Continua a svolgere il proprio lavoro, pensando che qualcuno se ne sia già accorto e abbia dato l'allarme","Apre le finestre della sala e attende che il fumo si diradi"],"e":"In emergenza si seguono le procedure del piano: il ritardo o l'iniziativa isolata aumentano i rischi per persone e beni."},
+{"c":"situazionali","m":"Accoglienza","q":"Un turista straniero che non parla italiano le chiede in inglese informazioni su orari e servizi. Cosa fa?","a":"Risponde in inglese con frasi semplici e gli consegna, se disponibile, materiale informativo multilingue","t":"Gli indica il punto informazioni senza provare a rispondere","w":["Gli risponde in italiano alzando la voce","Si allontana fingendo di non aver capito"],"e":"Una risposta diretta, anche semplice, è il servizio più efficace; il rinvio è accettabile ma meno utile."},
+{"c":"situazionali","m":"Etica e integrità","q":"Un visitatore, riconoscente per l'aiuto ricevuto nel ritrovare un oggetto smarrito, le offre una mancia di 20 euro. Come si comporta?","a":"Ringrazia e rifiuta con cortesia: non può accettare compensi per il servizio svolto","t":"Accetta la somma per non offendere il visitatore e la consegna subito al responsabile perché decida come utilizzarla","w":["Accetta e tiene il denaro per sé","Gli fa capire che si aspettava una somma maggiore"],"e":"Il codice di comportamento vieta di accettare compensi per lo svolgimento dei propri compiti. Consegnare la somma all'amministrazione è una soluzione di ripiego."},
+{"c":"situazionali","m":"Emergenze","q":"Mentre sta completando un report urgente richiesto dal responsabile, un visitatore accusa un malore in sala. Cosa fa?","a":"Soccorre subito il visitatore attivando gli addetti al primo soccorso e, se serve, il 112","t":"Chiede a un collega di occuparsi del visitatore e intanto termina il report, che il responsabile attende con urgenza","w":["Finisce il report e poi va a vedere come sta il visitatore","Chiede al visitatore di attendere all'esterno"],"e":"La tutela della salute delle persone ha sempre priorità sulle attività d'ufficio."},
+{"c":"situazionali","m":"Relazioni con i colleghi","q":"Un collega neoassunto le chiede spiegazioni su una procedura che lei conosce bene, in un momento di scarsa affluenza. Come si comporta?","a":"Spiega la procedura con chiarezza e indica dove trovare il documento ufficiale","t":"Gli suggerisce di rivolgersi al responsabile","w":["Gli dice che deve imparare da solo, come ha fatto lei","Gli dà indicazioni rapide e approssimative, per non perdere tempo in spiegazioni che potrebbe trovare da solo"],"e":"Condividere le conoscenze e rimandare alle fonti ufficiali rafforza il gruppo e riduce gli errori."},
+{"c":"situazionali","m":"Etica e integrità","q":"Un visitatore la riprende con lo smartphone senza consenso mentre svolge il servizio, creandole disagio. Come reagisce?","a":"Gli chiede con educazione di non riprenderla e, se insiste, informa il responsabile secondo le regole interne","t":"Si sposta in un'altra zona della sala per uscire dall'inquadratura","w":["Gli strappa il telefono dalle mani","Lo riprende a sua volta e pubblica il video online"],"e":"Occorre tutelare la propria riservatezza con fermezza e cortesia, senza reazioni che degenerino."},
+{"c":"situazionali","m":"Organizzazione del lavoro","q":"Il responsabile introduce una nuova procedura di controllo degli accessi che le sembra meno efficiente della precedente. Come si comporta?","a":"La applica e propone, nelle sedi opportune, osservazioni motivate per migliorarla","t":"La applica senza esprimere alcuna valutazione","w":["Continua a seguire la vecchia procedura","Commenta con i visitatori in fila che la nuova procedura è inutile e rallenta tutti"],"e":"Rispettare le disposizioni e contribuire con proposte costruttive è il comportamento più utile all'organizzazione."},
+{"c":"situazionali","m":"Tutela","q":"All'apertura si accorge che la cornice di un'opera esposta presenta una piccola crepa che il giorno prima non c'era. Cosa fa?","a":"La documenta e la segnala subito al funzionario competente, delimitando se serve l'area","t":"Annota l'anomalia nel registro di fine turno, senza avvisare subito nessuno perché la crepa è piccola","w":["Ripara la cornice con del nastro adesivo","Non dice nulla per evitare responsabilità"],"e":"Ogni anomalia sullo stato di conservazione va segnalata tempestivamente: gli interventi spettano al personale tecnico."},
+{"c":"situazionali","m":"Accoglienza","q":"Un gruppo di visitatori chiede di entrare cinque minuti dopo l'orario di chiusura. Come si comporta?","a":"Spiega con cortesia che l'ingresso è chiuso e indica gli orari del giorno dopo e le modalità di prenotazione","t":"Comunica che il museo è chiuso, senza fornire altre informazioni","w":["Li fa entrare e prolunga l'apertura per tutti","Discute animatamente con loro"],"e":"Il rispetto dell'orario si accompagna a un'informazione utile, che trasforma il rifiuto in un invito a tornare."},
+{"c":"situazionali","m":"Vigilanza","q":"In sala due visitatori discutono animatamente e la tensione cresce. Come interviene?","a":"Interviene con calma per riportare la situazione alla normalità e, se serve, chiama la sicurezza","t":"Osserva la scena a distanza senza intervenire, pronta ad agire soltanto se la discussione dovesse degenerare","w":["Prende le parti di uno dei due","Abbandona la sala"],"e":"Un intervento calmo e tempestivo previene l'escalation e tutela visitatori e opere."},
+{"c":"situazionali","m":"Etica e integrità","q":"Si accorge di aver commesso un errore nel conteggio dei biglietti di fine giornata. Come si comporta?","a":"Lo comunica subito al responsabile e ricostruisce i dati per correggerlo","t":"Corregge autonomamente il dato il giorno successivo, senza informare nessuno dell'accaduto","w":["Lascia il dato errato sperando che nessuno se ne accorga","Attribuisce l'errore a un collega"],"e":"Trasparenza e tempestività limitano le conseguenze dell'errore e preservano la fiducia."},
+{"c":"situazionali","m":"Organizzazione del lavoro","q":"Le viene chiesto di raccogliere le opinioni dei visitatori su una nuova mostra tramite questionario. Come procede?","a":"Invita i visitatori a compilarlo in modo neutrale e raccoglie i dati con ordine","t":"Lascia i questionari su un tavolo all'uscita, senza invitare i visitatori a compilarli","w":["Compila personalmente alcuni questionari per aumentare il numero di risposte","Distribuisce i questionari solo ai visitatori che le sembrano soddisfatti"],"e":"Una raccolta neutrale e attiva produce dati attendibili; le altre condotte li falsano."},
+{"c":"situazionali","m":"Etica e integrità","q":"Un visitatore le chiede nome e numero di cellulare di una collega che lo ha aiutato il giorno prima. Cosa fa?","a":"Non fornisce i dati della collega e propone di usare i canali ufficiali per un messaggio","t":"Gli comunica soltanto il nome della collega","w":["Gli fornisce il numero di cellulare e l'indirizzo di casa della collega, visto che le intenzioni sono buone","Gli dice che la collega non lavora più lì"],"e":"I dati personali dei colleghi non vanno comunicati a terzi; i canali ufficiali permettono comunque di far arrivare il messaggio."},
+{"c":"situazionali","m":"Organizzazione del lavoro","q":"A fine turno il collega che deve sostituirla in sala comunica che arriverà con un'ora di ritardo. Come si comporta?","a":"Informa il responsabile per concordare la copertura e resta in sala finché la sostituzione non è organizzata","t":"Resta in sala fino all'arrivo del collega, senza avvisare nessuno","w":["Lascia la sala all'orario previsto","Chiude la sala ai visitatori di sua iniziativa"],"e":"La continuità della vigilanza va garantita e coordinata con il responsabile, che deve essere informato."},
+];
+
+</script>
+<script>
+(function(){
+"use strict";
+const CATS = {
+  comuni:{label:"Quesiti comuni", desc:"Diritto amministrativo, contratti, lavoro pubblico, privacy, penale, CAD, UE, contabilità, inglese, informatica", official:10, weight:10},
+  specifiche:{label:"Specifici Codice 01", desc:"Sicurezza sul lavoro, marketing e comunicazione, patrimonio culturale, organizzazione del MiC", official:15, weight:15},
+  logica:{label:"Logica e critico-verbale", desc:"Serie, sillogismi, calcolo, analogie, comprensione del testo", official:7, weight:7},
+  situazionali:{label:"Situazionali", desc:"Casi concreti di lavoro: più efficace, neutra, meno efficace", official:8, weight:8}
+};
+const CAT_ORDER = ["comuni","specifiche","logica","situazionali"];
+const LETTERS = ["A","B","C","D"];
+
+// --- identificativo stabile per domanda ---
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36);}
+const BANK = QUESTIONS.map(q=>Object.assign({id:hash(q.q)},q));
+const BY_ID = Object.fromEntries(BANK.map(q=>[q.id,q]));
+
+// --- memoria locale (con ripiego in memoria) ---
+const mem = {};
+const store = {
+  get(k,d){try{const v=localStorage.getItem("micsim_"+k);return v?JSON.parse(v):d;}catch(e){return k in mem?mem[k]:d;}},
+  set(k,v){mem[k]=v;try{localStorage.setItem("micsim_"+k,JSON.stringify(v));}catch(e){}}
+};
+
+// --- casualità ---
+function rnd(n){if(window.crypto&&crypto.getRandomValues){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}return Math.floor(Math.random()*n);}
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// --- selezione: prima le domande meno viste ---
+function pickFrom(pool,n){
+  const seen=store.get("seen",{});
+  const groups={};
+  pool.forEach(q=>{const s=seen[q.id]||0;(groups[s]=groups[s]||[]).push(q);});
+  const out=[];
+  Object.keys(groups).map(Number).sort((a,b)=>a-b).forEach(k=>{
+    if(out.length<n){out.push(...shuffle(groups[k]).slice(0,n-out.length));}
+  });
+  return out;
+}
+function allocate(cats,n){
+  // ripartizione proporzionale ai pesi del bando, nei limiti delle domande disponibili
+  const avail={};cats.forEach(c=>avail[c]=BANK.filter(q=>q.c===c).length);
+  const total=Math.min(n,cats.reduce((s,c)=>s+avail[c],0));
+  const alloc={};cats.forEach(c=>alloc[c]=0);
+  let left=total;
+  while(left>0){
+    const open=cats.filter(c=>alloc[c]<avail[c]);
+    if(!open.length)break;
+    const wsum=open.reduce((s,c)=>s+CATS[c].weight,0);
+    // assegna in proporzione, almeno 1 al più "in difetto"
+    let best=null,bestGap=-Infinity;
+    open.forEach(c=>{const target=(total)*(CATS[c].weight/wsum);const gap=target-alloc[c];if(gap>bestGap){bestGap=gap;best=c;}});
+    alloc[best]++;left--;
+  }
+  return alloc;
+}
+
+// --- costruzione dell'istanza di test ---
+function buildItems(qs){
+  return qs.map(q=>{
+    const opts=shuffle([{text:q.a,role:"a"},{text:q.t,role:"t"},{text:q.w[0],role:"w"},{text:q.w[1],role:"w"}]);
+    return {q,opts,ans:null,flag:false,locked:false};
+  });
+}
+
+// --- stato ---
+const state={mode:"official",n:20,cats:new Set(CAT_ORDER),time:"auto",instant:false,
+  items:[],cur:0,endAt:null,timerId:null,official:false,instantRun:false,lastIds:[],reviewFilter:"all"};
+
+// ---------------- SETUP UI ----------------
+const $=s=>document.querySelector(s);
+const el=(tag,attrs={},html="")=>{const e=document.createElement(tag);for(const k in attrs){if(k==="class")e.className=attrs[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),attrs[k]);else e.setAttribute(k,attrs[k]);}if(html)e.innerHTML=html;return e;};
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+$("#bankSize").textContent=BANK.length;
+document.querySelectorAll(".mode").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".mode").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");
+  state.mode=b.dataset.mode;$("#customOpts").classList.toggle("hidden",state.mode!=="custom");refreshSetup();
+}));
+function maxAvail(){return BANK.filter(q=>state.cats.has(q.c)).length;}
+function renderChips(){
+  const wrap=$("#nChips");wrap.innerHTML="";
+  [10,20,40,60,100,"Tutte"].forEach(v=>{
+    const val=v==="Tutte"?maxAvail():v;
+    const b=el("button",{class:"chip"+(state.n===val?" sel":"")},String(v));
+    b.addEventListener("click",()=>{state.n=val;$("#nInput").value=val;refreshSetup();});
+    wrap.appendChild(b);
+  });
+  const tw=$("#timeChips");tw.innerHTML="";
+  [["off","Senza limite"],["auto","1,5 minuti a domanda, come nel bando"],["custom","Personalizzato"]].forEach(([k,l])=>{
+    const b=el("button",{class:"chip"+(state.time===k?" sel":"")},l);
+    b.addEventListener("click",()=>{state.time=k;refreshSetup();});tw.appendChild(b);
+  });
+  if(state.time==="custom"){
+    const inp=el("input",{type:"number",min:"1",value:String(state.customMin||30),id:"minInput"});
+    inp.addEventListener("input",()=>{state.customMin=Math.max(1,parseInt(inp.value)||1);});
+    tw.appendChild(inp);tw.appendChild(el("span",{class:"note"},"minuti"));
+  }
+}
+function renderCats(){
+  const w=$("#catChecks");w.innerHTML="";
+  CAT_ORDER.forEach(c=>{
+    const n=BANK.filter(q=>q.c===c).length;
+    const lab=el("label",{class:"check"});
+    const cb=el("input",{type:"checkbox"});cb.checked=state.cats.has(c);
+    cb.addEventListener("change",()=>{if(cb.checked)state.cats.add(c);else state.cats.delete(c);
+      if(!state.cats.size){state.cats.add(c);cb.checked=true;}
+      state.n=Math.min(state.n,maxAvail());$("#nInput").value=state.n;refreshSetup();});
+    lab.appendChild(cb);
+    lab.appendChild(el("span",{},`<b>${CATS[c].label}</b> <span class="note">(${n})</span><small>${CATS[c].desc}</small>`));
+    w.appendChild(lab);
+  });
+}
+$("#nInput").addEventListener("input",e=>{let v=parseInt(e.target.value)||1;v=Math.max(1,Math.min(v,maxAvail()));state.n=v;renderChips();});
+$("#nInput").addEventListener("change",e=>{e.target.value=state.n;});
+$("#instant").addEventListener("change",e=>{state.instant=e.target.checked;});
+function refreshSetup(){
+  renderChips();renderCats();
+  $("#nMax").textContent="max "+maxAvail();
+  const seen=store.get("seen",{});const nSeen=BANK.filter(q=>seen[q.id]).length;
+  $("#seenInfo").textContent=`Domande già viste: ${nSeen} su ${BANK.length}`;
+  const wrong=store.get("wrong",[]).filter(id=>BY_ID[id]);
+  $("#wrongCount").textContent=wrong.length;$("#reviewWrongBtn").disabled=!wrong.length;
+  $("#startBtn").textContent=state.mode==="official"?"Inizia la simulazione":"Inizia l'allenamento";
+}
+$("#resetBtn").addEventListener("click",()=>confirmBox("Azzerare la cronologia?","Verranno cancellati il conteggio delle domande già viste e l'elenco delle domande sbagliate.",()=>{store.set("seen",{});store.set("wrong",[]);refreshSetup();}));
+$("#startBtn").addEventListener("click",startFromSetup);
+$("#reviewWrongBtn").addEventListener("click",()=>{
+  const ids=store.get("wrong",[]).filter(id=>BY_ID[id]);if(!ids.length)return;
+  startTest(shuffle(ids.map(id=>BY_ID[id])),{official:false,instant:true,minutes:null,label:"Ripasso delle domande sbagliate"});
+});
+
+function startFromSetup(){
+  if(state.mode==="official"){
+    let qs=[];
+    CAT_ORDER.forEach(c=>{qs=qs.concat(pickFrom(BANK.filter(q=>q.c===c),CATS[c].official));});
+    startTest(qs,{official:true,instant:false,minutes:60,label:"Simulazione ufficiale · 40 quesiti · 60 minuti"});
+  }else{
+    const cats=CAT_ORDER.filter(c=>state.cats.has(c));
+    const alloc=allocate(cats,state.n);
+    let qs=[];cats.forEach(c=>{qs=qs.concat(pickFrom(BANK.filter(q=>q.c===c),alloc[c]));});
+    qs=shuffle(qs);
+    let minutes=null;
+    if(state.time==="auto")minutes=Math.ceil(qs.length*1.5);
+    if(state.time==="custom")minutes=state.customMin||30;
+    startTest(qs,{official:false,instant:state.instant,minutes,label:`Allenamento · ${qs.length} quesiti`+(minutes?` · ${minutes} minuti`:" · senza limite di tempo")});
+  }
+}
+
+// ---------------- TEST ----------------
+function startTest(qs,opt){
+  state.items=buildItems(qs);state.cur=0;state.official=opt.official;state.instantRun=opt.instant;state.label=opt.label;
+  state.lastIds=qs.map(q=>q.id);state.lastOpt=opt;
+  // registra come "viste"
+  const seen=store.get("seen",{});qs.forEach(q=>seen[q.id]=(seen[q.id]||0)+1);store.set("seen",seen);
+  clearInterval(state.timerId);state.endAt=opt.minutes?Date.now()+opt.minutes*60000:null;
+  show("test");renderQ();tick();if(state.endAt)state.timerId=setInterval(tick,500);
+  window.scrollTo(0,0);
+}
+function show(id){["setup","test","results"].forEach(s=>$("#"+s).classList.toggle("hidden",s!==id));}
+function tick(){
+  const t=$("#timer");
+  if(!state.endAt){t.textContent="";return;}
+  const ms=Math.max(0,state.endAt-Date.now());const m=Math.floor(ms/60000),s=Math.floor(ms%60000/1000);
+  t.textContent=`${m}:${String(s).padStart(2,"0")}`;t.classList.toggle("low",ms<5*60000);
+  if(ms<=0){clearInterval(state.timerId);finish(true);}
+}
+function roleClass(item,role){
+  if(item.q.c==="situazionali")return role==="a"?"ok":role==="t"?"mid":"ko";
+  return role==="a"?"ok":"ko";
+}
+function roleLabel(item,role){
+  if(item.q.c==="situazionali")return role==="a"?"Più efficace":role==="t"?"Neutra":"Meno efficace";
+  return role==="a"?"Corretta":role==="t"?"Trabocchetto":"";
+}
+function renderQ(){
+  const it=state.items[state.cur],q=it.q,N=state.items.length;
+  $("#qCounter").textContent=`Domanda ${state.cur+1} di ${N}`;
+  $("#progFill").style.width=(100*state.items.filter(i=>i.ans!==null).length/N)+"%";
+  $("#qSection").textContent=CATS[q.c].label;$("#qMateria").textContent=q.m;
+  $("#qText").textContent=q.q;
+  const box=$("#qOpts");box.innerHTML="";
+  const reveal=state.instantRun&&it.locked;
+  it.opts.forEach((o,i)=>{
+    let cls="opt";
+    if(reveal){ if(o.role==="a"||(q.c==="situazionali"))cls+=" "+roleClass(it,o.role); else if(it.ans===i)cls+=" ko"; }
+    else if(it.ans===i)cls+=" sel";
+    const b=el("button",{class:cls});
+    let lab="";
+    if(reveal){const l=roleLabel(it,o.role);if(l&&(q.c==="situazionali"||o.role!=="w"||it.ans===i))lab=`<span class="lab">${l}${it.ans===i?" · tua risposta":""}</span>`;}
+    b.innerHTML=`<span class="k">${LETTERS[i]}</span><span>${esc(o.text)}${lab}</span>`;
+    if(reveal)b.disabled=true;
+    b.addEventListener("click",()=>choose(i));
+    box.appendChild(b);
+  });
+  const ex=$("#qExpl");ex.innerHTML="";
+  if(reveal){ex.appendChild(el("div",{class:"expl"},`<b>${verdictText(it)}</b>${esc(q.e)}`));}
+  $("#prevBtn").disabled=state.cur===0;
+  $("#nextBtn").disabled=state.cur===N-1;
+  $("#clearBtn").disabled=it.ans===null||it.locked;
+  $("#flagBtn").classList.toggle("on",it.flag);
+  renderGrid();
+}
+function verdictText(it){
+  if(it.ans===null)return "Non hai risposto.";
+  const r=it.opts[it.ans].role;
+  if(it.q.c==="situazionali")return r==="a"?"Risposta più efficace (+0,75).":r==="t"?"Risposta neutra (+0,375).":"Risposta meno efficace (0).";
+  return r==="a"?"Risposta esatta (+0,75).":r==="t"?"Sei caduto nel trabocchetto (−0,25).":"Risposta errata (−0,25).";
+}
+function choose(i){
+  const it=state.items[state.cur];if(it.locked)return;
+  it.ans=i;if(state.instantRun)it.locked=true;renderQ();
+}
+function renderGrid(){
+  const g=$("#navGrid");g.innerHTML="";
+  state.items.forEach((it,i)=>{
+    let cls="";
+    if(state.instantRun&&it.locked){const r=it.opts[it.ans].role;cls=" g-"+roleClass(it,r);}
+    else if(it.ans!==null)cls=" ans";
+    if(it.flag)cls+=" fl";if(i===state.cur)cls+=" cur";
+    const b=el("button",{class:cls.trim(),title:CATS[it.q.c].label},String(i+1));
+    b.addEventListener("click",()=>{state.cur=i;renderQ();});g.appendChild(b);
+  });
+}
+$("#prevBtn").addEventListener("click",()=>{if(state.cur>0){state.cur--;renderQ();}});
+$("#nextBtn").addEventListener("click",()=>{if(state.cur<state.items.length-1){state.cur++;renderQ();}});
+$("#clearBtn").addEventListener("click",()=>{const it=state.items[state.cur];if(!it.locked){it.ans=null;renderQ();}});
+$("#flagBtn").addEventListener("click",()=>{const it=state.items[state.cur];it.flag=!it.flag;renderQ();});
+$("#submitBtn").addEventListener("click",()=>{
+  const blank=state.items.filter(i=>i.ans===null).length;
+  confirmBox("Consegnare il test?",blank?`Hai ancora ${blank} ${blank===1?"domanda":"domande"} senza risposta, che varranno 0 punti.`:"Hai risposto a tutte le domande.",()=>finish(false));
+});
+document.addEventListener("keydown",e=>{
+  if($("#test").classList.contains("hidden")||!$("#modal").classList.contains("hidden"))return;
+  if(e.target.tagName==="INPUT")return;
+  const k=e.key.toUpperCase();
+  const idx="ABCD".indexOf(k)>=0?"ABCD".indexOf(k):"1234".indexOf(k);
+  if(idx>=0&&k.length===1){choose(idx);e.preventDefault();}
+  else if(e.key==="ArrowRight"){$("#nextBtn").click();}
+  else if(e.key==="ArrowLeft"){$("#prevBtn").click();}
+});
+
+// ---------------- RISULTATI ----------------
+function pointsOf(it){
+  if(it.ans===null)return 0;
+  const r=it.opts[it.ans].role;
+  if(it.q.c==="situazionali")return r==="a"?0.75:r==="t"?0.375:0;
+  return r==="a"?0.75:-0.25;
+}
+function fmt(n){return (Math.round(n*1000)/1000).toLocaleString("it-IT",{minimumFractionDigits:0,maximumFractionDigits:3});}
+function finish(timeUp){
+  clearInterval(state.timerId);
+  const items=state.items,N=items.length;
+  let pts=0,ok=0,ko=0,bl=0,mid=0,trap=0,trapTot=0;
+  const per={};CAT_ORDER.forEach(c=>per[c]={n:0,pts:0,ok:0,ko:0,bl:0,mid:0});
+  items.forEach(it=>{
+    const p=pointsOf(it);pts+=p;const P=per[it.q.c];P.n++;P.pts+=p;
+    if(it.ans===null){bl++;P.bl++;return;}
+    const r=it.opts[it.ans].role;
+    if(it.q.c==="situazionali"){ if(r==="a"){ok++;P.ok++;} else if(r==="t"){mid++;P.mid++;} else {ko++;P.ko++;} }
+    else { trapTot++; if(r==="a"){ok++;P.ok++;} else {ko++;P.ko++; if(r==="t")trap++;} }
+  });
+  const max=N*0.75;const on30=max?pts/max*30:0;
+  // aggiorna l'elenco delle sbagliate
+  let wrong=new Set(store.get("wrong",[]));
+  items.forEach(it=>{const p=pointsOf(it);if(it.ans!==null&&p===0.75)wrong.delete(it.q.id);else wrong.add(it.q.id);});
+  store.set("wrong",[...wrong]);
+
+  $("#resMode").textContent=(timeUp?"Tempo scaduto · ":"")+state.label;
+  if(state.official){
+    $("#resScore").innerHTML=`${fmt(pts)}<small> / 30</small>`;
+    const pass=pts>=21;
+    $("#resVerdict").innerHTML=`<span class="verdict ${pass?"ok":"ko"}">${pass?"Prova superata":"Prova non superata"}</span>`;
+    $("#resDetail").textContent=pass?`Hai superato la soglia di 21/30 di ${fmt(pts-21)} punti.`:`Ti mancano ${fmt(21-pts)} punti per raggiungere la soglia di 21/30.`;
+  }else{
+    $("#resScore").innerHTML=`${fmt(on30)}<small> / 30</small>`;
+    const pass=on30>=21;
+    $("#resVerdict").innerHTML=`<span class="verdict ${pass?"ok":"ko"}">${pass?"Sopra la soglia di 21/30":"Sotto la soglia di 21/30"}</span>`;
+    $("#resDetail").textContent=`Punteggio grezzo ${fmt(pts)} su ${fmt(max)}, riportato in trentesimi.`;
+  }
+  const stats=[[ok,"esatte / più efficaci"],[ko,"errate / meno efficaci"],[bl,"omesse"],[mid,"neutre (situazionali)"]];
+  $("#resStats").innerHTML=stats.map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+  $("#resCats").innerHTML=CAT_ORDER.filter(c=>per[c].n).map(c=>{
+    const P=per[c];const m=P.n*0.75;const pct=Math.max(0,P.pts/m*100);
+    const esito=c==="situazionali"?`${P.ok} eff. · ${P.mid} neutre · ${P.ko} meno eff. · ${P.bl} omesse`:`${P.ok} esatte · ${P.ko} errate · ${P.bl} omesse`;
+    return `<tr><td><b>${CATS[c].label}</b><br><span class="note">${P.n} quesiti</span></td><td>${esito}</td><td class="num">${fmt(P.pts)} / ${fmt(m)}</td><td><div class="meter"><i style="width:${pct.toFixed(0)}%"></i></div></td></tr>`;
+  }).join("");
+  $("#trapNote").textContent=trapTot?(trap?`Delle tue ${ko} risposte errate, ${trap} ${trap===1?"è caduta":"sono cadute"} sul trabocchetto: l'opzione più simile a quella giusta.`:(ko?"Nessuna delle risposte errate è caduta sul trabocchetto.":"")):"";
+  state.reviewFilter="all";renderReview();
+  show("results");window.scrollTo(0,0);
+}
+function renderReview(){
+  const f=$("#revFilter");f.innerHTML="";
+  [["all","Tutte"],["wrong","Errate"],["blank","Omesse"],["trap","Trabocchetti"]].forEach(([k,l])=>{
+    const b=el("button",{class:"chip"+(state.reviewFilter===k?" sel":"")},l);
+    b.addEventListener("click",()=>{state.reviewFilter=k;renderReview();});f.appendChild(b);
+  });
+  const list=$("#revList");list.innerHTML="";
+  let shown=0;
+  state.items.forEach((it,i)=>{
+    const r=it.ans===null?null:it.opts[it.ans].role;const p=pointsOf(it);
+    if(state.reviewFilter==="wrong"&&!(r!==null&&p<0.75))return;
+    if(state.reviewFilter==="blank"&&r!==null)return;
+    if(state.reviewFilter==="trap"&&!(r==="t"&&it.q.c!=="situazionali"))return;
+    shown++;
+    let pill;
+    if(r===null)pill=`<span class="pill bl">Omessa · 0</span>`;
+    else if(it.q.c==="situazionali")pill=r==="a"?`<span class="pill ok">Più efficace · +0,75</span>`:r==="t"?`<span class="pill mid">Neutra · +0,375</span>`:`<span class="pill ko">Meno efficace · 0</span>`;
+    else pill=r==="a"?`<span class="pill ok">Esatta · +0,75</span>`:`<span class="pill ko">${r==="t"?"Trabocchetto":"Errata"} · −0,25</span>`;
+    const lis=it.opts.map((o,j)=>{
+      let cls="";if(it.q.c==="situazionali")cls=roleClass(it,o.role);else if(o.role==="a")cls="ok";else if(it.ans===j)cls="ko";
+      const tags=[];const lab=roleLabel(it,o.role);
+      if(lab&&(it.q.c==="situazionali"||o.role!=="w"))tags.push(lab);
+      if(it.ans===j)tags.push("tua risposta");
+      return `<li class="${cls}"><b>${LETTERS[j]}.</b> ${esc(o.text)}${tags.length?`<em>${tags.join(" · ")}</em>`:""}</li>`;
+    }).join("");
+    list.appendChild(el("div",{class:"rev"},`<div class="row" style="justify-content:space-between"><span class="note">${i+1}. ${CATS[it.q.c].label} · ${esc(it.q.m)}</span>${pill}</div><div class="q">${esc(it.q.q)}</div><ul>${lis}</ul><div class="expl">${esc(it.q.e)}</div>`));
+  });
+  if(!shown)list.appendChild(el("p",{class:"note"},"Nessuna domanda in questa categoria."));
+}
+$("#newBtn").addEventListener("click",()=>{refreshSetup();show("setup");window.scrollTo(0,0);});
+$("#retryBtn").addEventListener("click",()=>{
+  const qs=state.lastIds.map(id=>BY_ID[id]);const o=Object.assign({},state.lastOpt);
+  startTest(state.official?qs:shuffle(qs),o);
+});
+$("#retryWrongBtn").addEventListener("click",()=>{
+  const qs=state.items.filter(it=>pointsOf(it)<0.75||it.ans===null).map(it=>it.q);
+  if(!qs.length){confirmBox("Nessuna domanda da rifare","Hai risposto correttamente a tutte le domande.",()=>{},true);return;}
+  startTest(shuffle(qs),{official:false,instant:true,minutes:null,label:`Ripasso · ${qs.length} quesiti`});
+});
+
+// ---------------- MODALE ----------------
+function confirmBox(title,text,onYes,alertOnly){
+  $("#mTitle").textContent=title;$("#mText").textContent=text;$("#modal").classList.remove("hidden");
+  $("#mNo").classList.toggle("hidden",!!alertOnly);$("#mYes").textContent=alertOnly?"Ok":"Conferma";
+  const close=()=>{$("#modal").classList.add("hidden");$("#mYes").onclick=null;$("#mNo").onclick=null;};
+  $("#mYes").onclick=()=>{close();onYes();};$("#mNo").onclick=close;
+}
+
+refreshSetup();
+})();
+</script>
+</body>
+</html>
